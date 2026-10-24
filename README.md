@@ -134,3 +134,18 @@ Các tài liệu SRS, Use Case, UML, thiết kế database và kiểm thử sẽ
 ## Mục đích
 
 Dự án phục vụ mục đích học tập, thực tập và nghiên cứu phát triển phần mềm.
+
+
+## Hình ảnh giao diện
+
+### Trang đăng nhập
+
+![Giao diện đăng nhập](docs/screenshots/01-login.png)
+
+### Trang đăng ký
+
+![Giao diện đăng ký](docs/screenshots/02-register.png)
+
+### Dashboard
+
+![Dashboard](docs/screenshots/03-dashboard.png)
