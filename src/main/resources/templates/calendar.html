@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title>Lịch công việc</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 25px;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .navigation a {
+            padding: 10px 15px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        .calendar-wrap {
+            overflow-x: auto;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(110px, 1fr));
+            gap: 5px;
+            min-width: 770px;
+        }
+
+        .weekday {
+            background: #dbeafe;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .day {
+            min-height: 110px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            overflow-wrap: anywhere;
+        }
+
+        .outside {
+            background: #f1f5f9;
+            color: #94a3b8;
+        }
+
+        .date {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .task {
+            display: block;
+            background: #dbeafe;
+            color: #1d4ed8;
+            padding: 6px;
+            margin-top: 5px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .task:hover {
+            background: #bfdbfe;
+        }
+        .back {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 16px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>Lịch công việc</h1>
+
+    <div class="navigation">
+        <a th:href="@{/calendar(month=${previousMonth})}">
+            ← Tháng trước
+        </a>
+
+        <h2 th:text="${monthTitle}">Tháng 10/2026</h2>
+
+        <a th:href="@{/calendar(month=${nextMonth})}">
+            Tháng sau →
+        </a>
+    </div>
+
+    <div class="calendar-wrap">
+        <div class="calendar">
+
+            <div class="weekday">Thứ 2</div>
+            <div class="weekday">Thứ 3</div>
+            <div class="weekday">Thứ 4</div>
+            <div class="weekday">Thứ 5</div>
+            <div class="weekday">Thứ 6</div>
+            <div class="weekday">Thứ 7</div>
+            <div class="weekday">CN</div>
+
+            <div th:each="day : ${days}"
+                 class="day"
+                 th:classappend="${day.currentMonth}
+                    ? '' : 'outside'">
+
+                <div class="date"
+                     th:text="${day.date.dayOfMonth}">
+                    1
+                </div>
+
+                <a th:each="task : ${day.tasks}"
+                   class="task"
+                   th:href="@{/tasks/{id}/edit(id=${task.id})}"
+                   th:text="${task.title}">
+                    Tên công việc
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+    <a class="back" th:href="@{/dashboard}">
+        ← Quay lại trang chủ
+    </a>
+
+</div>
+</body>
+</html>

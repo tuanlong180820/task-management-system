@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title>Thêm công việc</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 550px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 20px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .error {
+            color: #dc2626;
+        }
+        .back {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 16px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Thêm công việc mới</h2>
+
+        <p class="error"
+           th:if="${error}"
+           th:text="${error}"></p>
+
+        <form th:action="@{/tasks/create}"
+              method="post">
+
+            <label>Tên công việc</label>
+            <input type="text"
+                   name="title"
+                   maxlength="200"
+                   required>
+
+            <label>Mô tả</label>
+            <textarea name="description"
+                      rows="4"></textarea>
+
+            <label>Mức độ ưu tiên</label>
+            <select name="priority">
+                <option value="LOW">Thấp</option>
+                <option value="MEDIUM" selected>
+                    Trung bình
+                </option>
+                <option value="HIGH">Cao</option>
+            </select>
+
+            <label>Hạn hoàn thành</label>
+            <input type="date" name="dueDate">
+            
+            <p>
+                <label>Danh mục</label>
+
+                <select name="categoryId"
+                        style="display:block;
+                            width:100%;
+                            padding:10px;">
+
+                    <option value="">-- Không chọn danh mục --</option>
+
+                    <option th:each="category : ${categories}"
+                            th:value="${category.id}"
+                            th:text="${category.name}">
+                    </option>
+
+                </select>
+            </p>
+
+
+            <button type="submit">
+                Lưu công việc
+            </button>
+        </form>
+
+        <p>
+            <a class="back" th:href="@{/dashboard}">
+                ← Quay lại trang chủ
+            </a>
+        </p>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,233 @@
+
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Đăng nhập - Task Management</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            padding: 40px 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px
+                        rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            text-align: center;
+            margin: 0 0 12px;
+            color: #111827;
+            font-size: 26px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #334155;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            margin-bottom: 18px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px
+                        rgba(37, 99, 235, 0.12);
+        }
+
+        button {
+            width: 100%;
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 13px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 14px;
+            color: #334155;
+        }
+
+        a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .message {
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="login-container">
+
+    
+    <div style="display:flex;
+                justify-content:flex-end;
+                gap:12px;
+                margin-bottom:20px;">
+
+        <a th:href="@{/login(lang='vi')}"
+        style="font-size:13px;">
+            🇻🇳 Tiếng Việt
+        </a>
+
+        <a th:href="@{/login(lang='en')}"
+        style="font-size:13px;">
+            🇬🇧 English
+        </a>
+
+    </div>
+
+        <h2 th:text="#{auth.login}">
+            Đăng nhập
+        </h2>
+
+
+    
+    <p class="subtitle"
+    th:text="#{auth.welcomeBack}">
+        Chào mừng trở lại Task Management
+    </p>
+
+
+    <!-- Thông báo đăng nhập thất bại -->
+    <div class="message error"
+         th:if="${param.error}"
+         th:text="#{auth.loginError}">
+        Email hoặc mật khẩu không chính xác!
+    </div>
+
+    <!-- Thông báo đăng xuất -->
+    <div class="message success"
+         th:if="${param.logout}"
+         th:text="#{auth.logoutSuccess}">
+        Bạn đã đăng xuất thành công.
+    </div>
+
+    <!-- Thông báo đổi mật khẩu -->
+    <div class="message success"
+         th:if="${param.passwordChanged}"
+         th:text="#{auth.passwordChanged}">
+        Đổi mật khẩu thành công.
+        Vui lòng đăng nhập lại.
+    </div>
+
+    <!-- Thông báo xóa tài khoản -->
+    <div class="message success"
+         th:if="${param.accountDeleted}"
+         th:text="#{auth.accountDeleted}">
+        Tài khoản của bạn đã được xóa thành công.
+    </div>
+
+    <!-- Form đăng nhập -->
+    <form th:action="@{/login}" method="post">
+
+        <label for="username" th:text="#{auth.email}">Email</label>
+
+        <input type="email"
+               id="username"
+               name="username"
+               placeholder="Nhập email của bạn"
+               autocomplete="username"
+               required>
+
+        <label for="password" th:text="#{auth.password}">Mật khẩu</label>
+
+        <input type="password"
+               id="password"
+               name="password"
+               placeholder="Nhập mật khẩu"
+               autocomplete="current-password"
+               required>
+
+        <button type="submit" th:text="#{auth.login}">
+            Đăng nhập
+        </button>
+
+    </form>
+
+    <div class="register-link">
+        <span th:text="#{auth.noAccount}">Chưa có tài khoản?</span>
+        <a th:href="@{/register}"
+            th:text="#{auth.registerNow}">
+            Đăng ký ngay
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>

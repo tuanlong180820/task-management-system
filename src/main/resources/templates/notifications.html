@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title>Thông báo</title>
+</head>
+<style>
+    .back {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 16px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+</style>
+<body style="font-family:Arial;
+             background:#f4f6f9;
+             padding:30px;">
+
+    <div style="max-width:900px;
+                margin:auto;
+                background:white;
+                padding:25px;
+                border-radius:10px;">
+
+        <h1>Thông báo của tôi</h1>
+
+        <p th:if="${#lists.isEmpty(notifications)}">
+            Bạn chưa có thông báo nào.
+        </p>
+
+        
+        <div th:each="notification : ${notifications}"
+            th:style="${notification.read}
+                ? 'padding:15px; margin-bottom:12px;
+                border:1px solid #ddd; border-radius:8px;
+                background:#f3f4f6;'
+                : 'padding:15px; margin-bottom:12px;
+                border:1px solid #93c5fd; border-radius:8px;
+                background:#eff6ff;'">
+
+            <h3 th:text="${notification.title}">
+                Tiêu đề thông báo
+            </h3>
+
+            <p th:text="${notification.message}">
+                Nội dung thông báo
+            </p>
+
+            <p th:if="${notification.read}">
+                <span style="color:green;">✓ Đã đọc</span>
+            </p>
+
+            <p th:unless="${notification.read}">
+                <span style="color:#2563eb;">● Chưa đọc</span>
+            </p>
+
+            <form th:if="${!notification.read}"
+                th:action="@{/notifications/{id}/read(
+                    id=${notification.id})}"
+                method="post">
+
+                <button type="submit">
+                    Đánh dấu đã đọc
+                </button>
+            </form>
+
+            <small th:text="${#temporals.format(
+                notification.createdAt,
+                'dd/MM/yyyy HH:mm')}">
+            </small>
+
+        </div>
+
+
+        <p>
+            <a class="back" th:href="@{/dashboard}">
+            ← Quay lại trang chủ
+            </a>
+        </p>
+    </div>
+</body>
+</html>

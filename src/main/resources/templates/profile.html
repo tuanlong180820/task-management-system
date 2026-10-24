@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title>Hồ sơ cá nhân</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            padding: 30px;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 550px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 6px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 20px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .success { color: #15803d; }
+        .error { color: #dc2626; }
+        .back {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 16px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Hồ sơ cá nhân</h2>
+
+    <p class="success" th:if="${param.success}">
+        Cập nhật thông tin thành công!
+    </p>
+
+    <p class="error"
+       th:if="${error}"
+       th:text="${error}"></p>
+
+    <form th:action="@{/profile}" method="post">
+
+        <label>Họ và tên</label>
+        <input type="text"
+               name="fullName"
+               th:value="${user.fullName}"
+               maxlength="100"
+               required>
+
+        <label>Email</label>
+        <input type="email"
+               th:value="${user.email}"
+               readonly>
+
+        <button type="submit">
+            Lưu thay đổi
+        </button>
+    </form>
+
+    <p >
+        <a class="back" th:href="@{/dashboard}">
+            ← Quay lại trang chủ
+        </a>
+    </p>
+</div>
+</body>
+</html>

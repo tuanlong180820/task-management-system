@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title>Thêm danh mục</title>
+</head>
+<style>
+    .back {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 16px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+</style>
+<body style="font-family:Arial;
+             background:#f4f6f9;
+             padding:30px;">
+
+    <div style="max-width:500px;
+                margin:auto;
+                background:white;
+                padding:30px;
+                border-radius:10px;">
+
+        <h2>Thêm danh mục mới</h2>
+
+        <p th:if="${error}"
+           th:text="${error}"
+           style="color:red;"></p>
+
+        <form th:action="@{/categories/create}"
+              method="post">
+
+            <p>
+                <label>Tên danh mục</label>
+                <input type="text"
+                       name="name"
+                       maxlength="100"
+                       required
+                       style="display:block;
+                              width:100%;
+                              padding:10px;
+                              box-sizing:border-box;">
+            </p>
+
+            <p>
+                <label>Mô tả</label>
+                <textarea name="description"
+                          rows="4"
+                          style="display:block;
+                                 width:100%;
+                                 box-sizing:border-box;">
+                </textarea>
+            </p>
+
+            <p>
+                <label>Màu sắc</label>
+                <input type="color"
+                       name="color"
+                       value="#2563eb">
+            </p>
+
+            <button type="submit">
+                Lưu danh mục
+            </button>
+        </form>
+
+        <p>
+            <a class="back" th:href="@{/dashboard}">
+                ← Quay lại trang chủ
+            </a>
+        </p>
+    </div>
+</body>
+</html>

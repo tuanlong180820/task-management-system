@@ -1,0 +1,271 @@
+
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title>Cài đặt - Task Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            padding: 30px 15px;
+        }
+
+        .container {
+            max-width: 680px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px #00000012;
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 25px 0;
+        }
+
+        .tabs a {
+            padding: 12px 18px;
+            border-radius: 7px;
+            text-decoration: none;
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .tabs a.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        label {
+            display: block;
+            margin: 15px 0 6px;
+            font-weight: bold;
+        }
+
+        input:not([type="checkbox"]),
+        select {
+            width: 100%;
+            padding: 11px;
+            box-sizing: border-box;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            padding: 12px 20px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .success { color: #15803d; }
+        .error { color: #dc2626; }
+        .back {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 16px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1 th:text="#{settings.title}">
+        Cài đặt tài khoản
+    </h1>
+
+    <div class="tabs">
+        <a th:href="@{/settings(tab='profile')}"
+           th:classappend="${activeTab == 'profile'} ? 'active' : ''"
+           th:text="#{settings.profile}">
+            Hồ sơ
+        </a>
+
+        <a th:href="@{/settings(tab='security')}"
+           th:classappend="${activeTab == 'security'} ? 'active' : ''"
+           th:text="#{settings.security}">
+            Bảo mật
+        </a>
+
+        <a th:href="@{/settings(tab='preferences')}"
+           th:classappend="${activeTab == 'preferences'} ? 'active' : ''"
+           th:text="#{settings.preferences}">
+            Tùy chọn
+        </a>
+    </div>
+
+    <p class="success" th:if="${success}"
+       th:text="${success}"></p>
+
+    <p class="success"
+   th:if="${param.success}"
+   th:text="#{settings.saveSuccess}">
+        Lưu thay đổi thành công!
+    </p>
+
+    <p class="error" th:if="${error}"
+       th:text="${error}"></p>
+
+    <!-- TAB HỒ SƠ -->
+    <section class="panel"
+             th:classappend="${activeTab == 'profile'} ? 'active' : ''">
+
+        <h2 th:text="#{settings.profileInfo}">Thông tin cá nhân</h2>
+
+        <form th:action="@{/profile}" method="post" >
+            <label th:text="#{settings.fullName}">Họ và tên</label>
+            <input type="text"
+                   name="fullName"
+                   th:value="${user.fullName}"
+                   maxlength="100" required>
+
+            <label th:text="#{settings.email}">Email</label>
+            <input type="email"
+                   th:value="${user.email}" readonly>
+
+            <button type="submit" th:text="#{settings.saveProfile}">Lưu hồ sơ</button>
+        </form>
+    </section>
+
+    <!-- TAB BẢO MẬT -->
+    <section class="panel"
+             th:classappend="${activeTab == 'security'} ? 'active' : ''">
+
+        <h2 th:text="#{settings.changePassword}">Đổi mật khẩu</h2>
+
+        <form th:action="@{/change-password}" method="post">
+            <label th:text="#{settings.currentPassword}">Mật khẩu hiện tại</label>
+            <input type="password"
+                   name="currentPassword"
+                   autocomplete="current-password"
+                   required>
+
+            <label th:text="#{settings.newPassword}">Mật khẩu mới</label>
+            <input type="password"
+                   name="newPassword"
+                   autocomplete="new-password"
+                   minlength="8" required>
+
+            <label th:text="#{settings.confirmPassword}">Xác nhận mật khẩu mới</label>
+            <input type="password"
+                   name="confirmPassword"
+                   autocomplete="new-password"
+                   minlength="8" required>
+
+            <button type="submit" th:text="#{settings.changePasswordButton}">Đổi mật khẩu</button>
+
+        </form>
+        
+        
+        <hr style="margin:30px 0;">
+
+        <h3 style="color:#dc2626;"
+            th:text="#{settings.dangerZone}">
+            Vùng nguy hiểm
+        </h3>
+
+        <p th:text="#{settings.deleteWarning}">
+            Xóa vĩnh viễn tài khoản và toàn bộ công việc,
+            danh mục, thông báo và cài đặt liên quan.
+            Hành động này không thể hoàn tác.
+        </p>
+
+        <form th:action="@{/settings/delete-account}"
+            method="post"
+            th:attr="data-confirm=#{settings.deleteConfirm}"
+            onsubmit="return confirm(this.dataset.confirm);">
+
+            <label th:text="#{settings.confirmPasswordDelete}">
+                Nhập mật khẩu để xác nhận
+            </label>
+
+            <input type="password"
+                name="currentPassword"
+                autocomplete="current-password"
+                required>
+
+            <button type="submit"
+                    style="background:#dc2626;color:white;"
+                    th:text="#{settings.deleteAccountButton}">
+                Xóa tài khoản vĩnh viễn
+            </button>
+
+        </form>
+
+
+    </section>
+
+    <!-- TAB TÙY CHỌN -->
+    <section class="panel"
+             th:classappend="${activeTab == 'preferences'} ? 'active' : ''">
+
+        <h2 th:text="#{settings.systemPreferences}">Tùy chọn hệ thống</h2>
+
+        <form th:action="@{/settings}" method="post">
+
+            <label th:text="#{settings.theme}">Giao diện</label>
+            <select name="theme">
+                <option value="LIGHT"
+                        th:selected="${setting.theme == 'LIGHT'}" th:text="#{settings.light}">
+                    Sáng
+                </option>
+                <option value="DARK"
+                        th:selected="${setting.theme == 'DARK'}" th:text="#{settings.dark}">
+                    Tối
+                </option>
+            </select>
+
+            <label>
+                <input type="checkbox"
+                       name="notificationsEnabled"
+                       value="true"
+                       th:checked="${setting.notificationsEnabled}">
+                <span th:text="#{settings.notifications}">
+                    Bật thông báo
+                </span>
+            </label>
+
+            <label th:text="#{settings.language}">Ngôn ngữ</label>
+            <select name="language">
+                <option value="vi"
+                        th:selected="${setting.language == 'vi'}">
+                    Tiếng Việt
+                </option>
+                <option value="en"
+                        th:selected="${setting.language == 'en'}">
+                    English
+                </option>
+            </select>
+
+            <button type="submit" th:text="#{common.save}">Lưu tùy chọn</button>
+        </form>
+    </section>
+
+    <p>
+        <a class="back" th:href="@{/dashboard}"
+        th:text="#{settings.backDashboard}">
+            ← Quay lại trang chủ
+        </a>
+    </p>
+
+</div>
+</body>
+</html>

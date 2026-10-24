@@ -1,0 +1,172 @@
+
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>Lịch sử hoạt động</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            padding: 25px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px #00000012;
+        }
+
+        h1 {
+            color: #1e40af;
+        }
+
+        .log-item {
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #2563eb;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: #f8fafc;
+        }
+
+        .log-item.CREATE_TASK {
+            border-left-color: #16a34a;
+        }
+
+        .log-item.UPDATE_TASK {
+            border-left-color: #f59e0b;
+        }
+
+        .log-item.DELETE_TASK {
+            border-left-color: #dc2626;
+        }
+
+        .action {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .description {
+            margin: 8px 0;
+        }
+
+        .time {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+        }
+
+        .back {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 16px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+        
+        .log-item.CREATE_CATEGORY {
+            border-left-color: #16a34a;
+        }
+
+        .log-item.UPDATE_CATEGORY {
+            border-left-color: #f59e0b;
+        }
+
+        .log-item.DELETE_CATEGORY {
+            border-left-color: #dc2626;
+        }
+
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>📋 Lịch sử hoạt động</h1>
+
+    <p>
+        Theo dõi những thao tác bạn đã thực hiện
+        trong hệ thống.
+    </p>
+
+    <div th:if="${#lists.isEmpty(activityLogs)}"
+         class="empty">
+        Bạn chưa có lịch sử hoạt động nào.
+    </div>
+
+    <div th:each="log : ${activityLogs}"
+         class="log-item"
+         th:classappend="${log.action}">
+
+        <div class="action">
+            <span th:switch="${log.action}">
+                
+        <span th:case="'CREATE_CATEGORY'">
+            ✅ Tạo danh mục
+        </span>
+
+        <span th:case="'UPDATE_CATEGORY'">
+            ✏️ Cập nhật danh mục
+        </span>
+
+        <span th:case="'DELETE_CATEGORY'">
+            🗑️ Xóa danh mục
+        </span>
+
+                <span th:case="'CREATE_TASK'">
+                    ✅ Tạo công việc
+                </span>
+
+                <span th:case="'UPDATE_TASK'">
+                    ✏️ Cập nhật công việc
+                </span>
+
+                <span th:case="'DELETE_TASK'">
+                    🗑️ Xóa công việc
+                </span>
+
+                <span th:case="*"
+                      th:text="${log.action}">
+                    Hoạt động
+                </span>
+            </span>
+        </div>
+
+        <p class="description"
+           th:text="${log.description}">
+            Nội dung hoạt động
+        </p>
+
+        <div class="time"
+             th:text="${#temporals.format(
+                 log.createdAt,
+                 'dd/MM/yyyy HH:mm:ss')}">
+            24/10/2026 16:30:00
+        </div>
+    </div>
+
+    <a class="back" th:href="@{/dashboard}">
+        ← Quay lại trang chủ
+    </a>
+
+</div>
+</body>
+</html>

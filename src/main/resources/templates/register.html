@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title>Đăng ký - Task Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .register-box {
+            background: white;
+            padding: 30px;
+            width: 360px;
+            max-width: calc(100% - 48px);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px #00000015;
+        }
+        h2 { text-align: center; }
+        input {
+            width: 100%;
+            padding: 11px;
+            margin: 8px 0 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .error { color: #dc2626; }
+    </style>
+</head>
+<body>
+    <div class="register-box">
+        
+        <div style="display:flex;
+                    justify-content:flex-end;
+                    gap:12px;
+                    margin-bottom:20px;">
+
+            <a th:href="@{/register(lang='vi')}"
+            style="font-size:13px;color:#2563eb;">
+                🇻🇳 Tiếng Việt
+            </a>
+
+            <a th:href="@{/register(lang='en')}"
+            style="font-size:13px;color:#2563eb;">
+                🇬🇧 English
+            </a>
+
+        </div>
+
+        <h2 th:text="#{auth.registerTitle}">Đăng ký tài khoản</h2>
+
+        <p class="error"
+           th:if="${error}"
+           th:text="${error}"></p>
+
+        <form th:action="@{/register}" method="post">
+            <label th:text="#{auth.fullName}">Họ và tên</label>
+            <input type="text" name="fullName"
+                   required maxlength="100">
+
+            <label th:text="#{auth.email}">Email</label>
+            <input type="email" name="email"
+                   required maxlength="150">
+
+            <label th:text="#{auth.password}">Mật khẩu</label>
+            <input type="password" name="password"
+                   required minlength="8">
+
+            <button type="submit" th:text="#{auth.register}">Đăng ký</button>
+        </form>
+
+        <p>
+            <span th:text="#{auth.haveAccount}">Đã có tài khoản?</span>
+            <a th:href="@{/login}"  th:text="#{auth.loginNow}">Đăng nhập</a>
+        </p>
+    </div>
+</body>
+</html>

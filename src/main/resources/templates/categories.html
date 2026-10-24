@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title>Danh mục công việc</title>
+    
+    <p th:if="${success}"
+    th:text="${success}"
+    style="color:green; font-weight:bold;">
+    </p>
+
+    <p th:if="${error}"
+    th:text="${error}"
+    style="color:red; font-weight:bold;">
+    </p>
+
+</head>
+<style>
+    .back {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 16px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+</style>
+<body style="font-family:Arial;
+             background:#f4f6f9;
+             padding:30px;">
+
+    <div style="max-width:900px;
+                margin:auto;
+                background:white;
+                padding:25px;
+                border-radius:10px;">
+
+        <h1>Danh mục công việc</h1>
+
+        <p>
+            <a th:href="@{/categories/new}">
+                + Thêm danh mục
+            </a>
+        </p>
+
+        <p th:if="${#lists.isEmpty(categories)}">
+            Bạn chưa có danh mục nào.
+        </p>
+
+        <table th:unless="${#lists.isEmpty(categories)}"
+               border="1"
+               cellpadding="12"
+               cellspacing="0"
+               style="width:100%;
+                      border-collapse:collapse;">
+
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên danh mục</th>
+                    <th>Mô tả</th>
+                    <th>Màu sắc</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr th:each="category, stat : ${categories}">
+                    <td th:text="${stat.count}">1</td>
+
+                    <td th:text="${category.name}">
+                        Học tập
+                    </td>
+
+                    <td th:text="${category.description}">
+                        Công việc học tập
+                    </td>
+
+                    <td>
+                        <span th:style="|display:inline-block;
+                                        width:20px;
+                                        height:20px;
+                                        background-color:${category.color};
+                                        border-radius:4px;|">
+                        </span>
+
+                        <span th:text="${category.color}">
+                            #2563eb
+                        </span>
+                    </td>
+                    
+                    
+                    <td>
+                        <div style="display:flex;
+                                    align-items:center;
+                                    gap:10px;">
+
+                            <a th:href="@{/categories/{id}/edit(id=${category.id})}"
+                            style="display:inline-block;
+                                    padding:8px 14px;
+                                    background:#f59e0b;
+                                    color:white;
+                                    text-decoration:none;
+                                    border-radius:5px;">
+                                Sửa
+                            </a>
+
+                            <form th:action="@{/categories/{id}/delete(id=${category.id})}"
+                                method="post"
+                                style="margin:0;"
+                                onsubmit="return confirm('Bạn có chắc chắn muốn xóa danh mục này?');">
+
+                                <button type="submit"
+                                        style="padding:8px 14px;
+                                            background:#dc2626;
+                                            color:white;
+                                            border:none;
+                                            border-radius:5px;
+                                            cursor:pointer;">
+                                    Xóa
+                                </button>
+                            </form>
+
+                        </div>
+                    </td>
+
+
+                </tr>
+            </tbody>
+        </table>
+
+        <a class="back" th:href="@{/dashboard}">
+        ← Quay lại trang chủ
+        </a>
+    </div>
+</body>
+</html>

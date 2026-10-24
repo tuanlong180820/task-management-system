@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title>Sửa công việc</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 550px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 20px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .error {
+            color: #dc2626;
+        }
+        .back {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 16px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Chỉnh sửa công việc</h2>
+
+    <p class="error"
+       th:if="${error}"
+       th:text="${error}"></p>
+
+    <form th:action="@{/tasks/{id}/edit(id=${task.id})}"
+          method="post">
+
+        <label>Tên công việc</label>
+        <input type="text"
+               name="title"
+               th:value="${task.title}"
+               maxlength="200"
+               required>
+
+        <label>Mô tả</label>
+        <textarea name="description"
+                  rows="4"
+                  th:text="${task.description}"></textarea>
+
+        <label>Trạng thái</label>
+        <select name="status">
+            <option value="TODO"
+                    th:selected="${task.status == 'TODO'}">
+                Chưa thực hiện
+            </option>
+            <option value="IN_PROGRESS"
+                    th:selected="${task.status == 'IN_PROGRESS'}">
+                Đang thực hiện
+            </option>
+            <option value="DONE"
+                    th:selected="${task.status == 'DONE'}">
+                Hoàn thành
+            </option>
+        </select>
+
+        <label>Mức độ ưu tiên</label>
+        <select name="priority">
+            <option value="LOW"
+                    th:selected="${task.priority == 'LOW'}">
+                Thấp
+            </option>
+            <option value="MEDIUM"
+                    th:selected="${task.priority == 'MEDIUM'}">
+                Trung bình
+            </option>
+            <option value="HIGH"
+                    th:selected="${task.priority == 'HIGH'}">
+                Cao
+            </option>
+        </select>
+
+        <label>Hạn hoàn thành</label>
+        <input type="date"
+               name="dueDate"
+               th:value="${task.dueDate}">
+        
+            <p>
+                <label>Danh mục</label>
+
+                <select name="categoryId"
+                        style="display:block;
+                            width:100%;
+                            padding:10px;">
+
+                    <option value=""
+                            th:selected="${task.category == null}">
+                        -- Không có danh mục --
+                    </option>
+
+                    <option th:each="category : ${categories}"
+                            th:value="${category.id}"
+                            th:text="${category.name}"
+                            th:selected="${task.category != null
+                                and task.category.id == category.id}">
+                    </option>
+
+                </select>
+            </p>
+
+
+        <button type="submit">
+            Lưu thay đổi
+        </button>
+    </form>
+
+    <p>
+        <a class="back" th:href="@{/dashboard}">
+            ← Quay lại trang chủ
+        </a>
+    </p>
+</div>
+
+</body>
+</html>

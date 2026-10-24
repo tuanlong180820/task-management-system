@@ -1,0 +1,145 @@
+
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>Admin Dashboard</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            color: #1e40af;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin: 0;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(210px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px #0000000a;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 12px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 20px;
+            background: #2563eb;
+            color: white;
+            border-radius: 7px;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>🛡️ Admin Dashboard</h1>
+        <p class="subtitle">
+            Tổng quan hoạt động hệ thống Task Management
+        </p>
+    </div>
+
+    <div class="stats">
+
+        <div class="stat-card">
+            <div class="stat-label">👥 Tổng tài khoản</div>
+            <div class="stat-value"
+                 th:text="${totalUsers}">0</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">📋 Tổng công việc</div>
+            <div class="stat-value"
+                 th:text="${totalTasks}">0</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">📁 Tổng danh mục</div>
+            <div class="stat-value"
+                 th:text="${totalCategories}">0</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">🕒 Tổng hoạt động</div>
+            <div class="stat-value"
+                 th:text="${totalActivities}">0</div>
+        </div>
+
+    </div>
+    
+    <a th:href="@{/admin/users}"
+    style="display:inline-block;
+            margin-top:25px;
+            margin-right:12px;
+            padding:12px 20px;
+            background:#7c3aed;
+            color:white;
+            border-radius:7px;
+            text-decoration:none;">
+        👥 Quản lý người dùng
+    </a>
+
+
+    <a class="back-link" th:href="@{/dashboard}">
+        ← Quay lại Dashboard
+    </a>
+
+</div>
+</body>
+</html>
