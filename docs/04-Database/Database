@@ -1,0 +1,342 @@
+SOFTWARE REQUIREMENTS SPECIFICATION
+HỆ THỐNG QUẢN LÝ CÔNG VIỆC CÁ NHÂN
+(TASK MANAGEMENT SYSTEM)
+ THIẾT KẾ CƠ SỞ DỮ LIỆU VÀ KIỂM TRA TÍNH NHẤT QUÁN
+ 
+CHƯƠNG 7. THIẾT KẾ CƠ SỞ DỮ LIỆU
+7.1. Mục tiêu thiết kế cơ sở dữ liệu
+Cơ sở dữ liệu của hệ thống Quản lý Công việc cá nhân (Task Management System) được thiết kế nhằm lưu trữ và quản lý thông tin tài khoản người dùng, danh mục công việc, công việc cá nhân, thông báo, lịch sử thao tác và cấu hình cá nhân.
+Hệ thống sử dụng 6 bảng chính:
+•	Users
+•	Categories
+•	Tasks
+•	Notifications
+•	ActivityLogs
+•	Settings
+7.2. Danh sách các bảng
+STT	Tên bảng	Mục đích
+1	Users	Lưu thông tin tài khoản và vai trò người dùng
+2	Categories	Lưu các danh mục công việc
+3	Tasks	Lưu các công việc cá nhân
+4	Notifications	Lưu thông báo của người dùng
+5	ActivityLogs	Lưu lịch sử thao tác
+6	Settings	Lưu cấu hình cá nhân
+
+7.3. Mối quan hệ giữa các bảng
+Quan hệ	Cardinality	Mô tả
+Users – Categories	1 : N	Một User có thể tạo nhiều Category; một Category chỉ thuộc về một User.
+Users – Tasks	1 : N	Một User có thể có nhiều Task; một Task chỉ thuộc về một User.
+Categories – Tasks	1 : N	Một Category có thể chứa nhiều Task; một Task có thể thuộc một Category hoặc chưa được phân loại.
+Users – Notifications	1 : N	Một User có thể nhận nhiều Notification; một Notification chỉ thuộc về một User.
+Users – ActivityLogs	1 : N	Một User có thể có nhiều Activity Log; một Activity Log thuộc về một User.
+Users – Settings	1 : 1	Mỗi User có một Settings; mỗi Settings chỉ thuộc về một User.
+
+7.4. ERD hoàn chỉnh
+                         +----------------------+
+                         |        USERS         |
+                         +----------------------+
+                         | PK user_id           |
+                         | full_name            |
+                         | email                |
+                         | password             |
+                         | avatar               |
+                         | phone                |
+                         | role                 |
+                         | created_at           |
+                         | updated_at           |
+                         +----------+-----------+
+                                    |
+             +----------------------+----------------------+
+             | 1                    | 1                    | 1
+             | N                    | N                    | N
+             v                      v                      v
+     +---------------+      +---------------+      +------------------+
+     |  CATEGORIES   |      |     TASKS     |      | NOTIFICATIONS    |
+     +---------------+      +---------------+      +------------------+
+     | PK category_id|      | PK task_id    |      | PK notification_id|
+     | FK user_id    |      | FK user_id    |      | FK user_id       |
+     | category_name |      | FK category_id|      | title            |
+     | description   |      | title         |      | content          |
+     | created_at    |      | description   |      | is_read          |
+     +-------+-------+      | priority      |      | created_at       |
+             | 1            | status        |      +------------------+
+             | N            | deadline      |
+             +------------->| reminder_time |
+                            | created_at    |
+                            | updated_at    |
+                            +---------------+
+
+                         +------------------+
+                         |  ACTIVITY_LOGS   |
+                         +------------------+
+                         | PK log_id        |
+                         | FK user_id       |
+                         | action           |
+                         | description      |
+                         | ip_address       |
+                         | created_at       |
+                         +------------------+
+
+                         +------------------+
+                         |     SETTINGS     |
+                         +------------------+
+                         | PK setting_id    |
+                         | FK user_id       |
+                         | theme            |
+                         | language         |
+                         | timezone         |
+                         | notification_enabled |
+                         +------------------+
+
+7.5. Primary Key và Foreign Key
+Bảng	Primary Key	Foreign Key	Tham chiếu
+Users	user_id	—	—
+Categories	category_id	user_id	Users.user_id
+Tasks	task_id	user_id	Users.user_id
+Tasks	task_id	category_id	Categories.category_id
+Notifications	notification_id	user_id	Users.user_id
+ActivityLogs	log_id	user_id	Users.user_id
+Settings	setting_id	user_id	Users.user_id
+
+Lưu ý: để đảm bảo quan hệ Users 1–1 Settings, trường Settings.user_id nên có ràng buộc UNIQUE.
+7.6. Cardinality tổng thể
+Quan hệ	Cardinality	Giải thích
+Users – Categories	1 : N	Một User có nhiều Category
+Users – Tasks	1 : N	Một User có nhiều Task
+Categories – Tasks	1 : N	Một Category có nhiều Task
+Users – Notifications	1 : N	Một User có nhiều Notification
+Users – ActivityLogs	1 : N	Một User có nhiều Activity Log
+Users – Settings	1 : 1	Một User có một Settings
+
+7.7. Data Dictionary
+7.7.1. Bảng Users
+Tên trường	Kiểu dữ liệu	Độ dài	Ràng buộc	Mô tả
+user_id	BIGINT	20	PK, AUTO_INCREMENT	Mã người dùng
+full_name	VARCHAR	100	NOT NULL	Họ và tên
+email	VARCHAR	100	NOT NULL, UNIQUE	Email đăng nhập
+password	VARCHAR	255	NOT NULL	Mật khẩu đã mã hóa
+avatar	VARCHAR	255	NULL	Đường dẫn ảnh đại diện
+phone	VARCHAR	15	NULL	Số điện thoại
+role	ENUM	—	NOT NULL	USER hoặc ADMINISTRATOR
+created_at	DATETIME	—	NOT NULL	Thời gian tạo tài khoản
+updated_at	DATETIME	—	NULL	Thời gian cập nhật
+
+7.7.2. Bảng Categories
+Tên trường	Kiểu dữ liệu	Độ dài	Ràng buộc	Mô tả
+category_id	BIGINT	20	PK, AUTO_INCREMENT	Mã danh mục
+user_id	BIGINT	20	FK, NOT NULL	Người sở hữu danh mục
+category_name	VARCHAR	100	NOT NULL	Tên danh mục
+description	TEXT	—	NULL	Mô tả danh mục
+created_at	DATETIME	—	NOT NULL	Thời gian tạo
+
+7.7.3. Bảng Tasks
+Tên trường	Kiểu dữ liệu	Độ dài	Ràng buộc	Mô tả
+task_id	BIGINT	20	PK, AUTO_INCREMENT	Mã công việc
+user_id	BIGINT	20	FK, NOT NULL	Người sở hữu công việc
+category_id	BIGINT	20	FK, NULL	Danh mục của công việc
+title	VARCHAR	255	NOT NULL	Tiêu đề công việc
+description	TEXT	—	NULL	Mô tả chi tiết
+priority	ENUM	—	NOT NULL	LOW, MEDIUM, HIGH
+status	ENUM	—	NOT NULL	TODO, IN_PROGRESS, COMPLETED
+deadline	DATETIME	—	NULL	Thời hạn hoàn thành
+reminder_time	DATETIME	—	NULL	Thời gian nhắc nhở
+created_at	DATETIME	—	NOT NULL	Thời gian tạo
+updated_at	DATETIME	—	NULL	Thời gian cập nhật
+
+7.7.4. Bảng Notifications
+Tên trường	Kiểu dữ liệu	Độ dài	Ràng buộc	Mô tả
+notification_id	BIGINT	20	PK, AUTO_INCREMENT	Mã thông báo
+user_id	BIGINT	20	FK, NOT NULL	Người nhận
+title	VARCHAR	200	NOT NULL	Tiêu đề thông báo
+content	TEXT	—	NOT NULL	Nội dung thông báo
+is_read	BOOLEAN	—	NOT NULL, DEFAULT FALSE	Trạng thái đã đọc
+created_at	DATETIME	—	NOT NULL	Thời gian tạo
+
+7.7.5. Bảng ActivityLogs
+Tên trường	Kiểu dữ liệu	Độ dài	Ràng buộc	Mô tả
+log_id	BIGINT	20	PK, AUTO_INCREMENT	Mã nhật ký
+user_id	BIGINT	20	FK, NOT NULL	Người thực hiện
+action	VARCHAR	100	NOT NULL	Tên hành động
+description	TEXT	—	NULL	Mô tả hành động
+ip_address	VARCHAR	45	NULL	Địa chỉ IP
+created_at	DATETIME	—	NOT NULL	Thời gian thực hiện
+
+7.7.6. Bảng Settings
+Tên trường	Kiểu dữ liệu	Độ dài	Ràng buộc	Mô tả
+setting_id	BIGINT	20	PK, AUTO_INCREMENT	Mã cấu hình
+user_id	BIGINT	20	FK, UNIQUE, NOT NULL	Người sở hữu cấu hình
+theme	VARCHAR	20	DEFAULT 'LIGHT'	Giao diện
+language	VARCHAR	20	DEFAULT 'vi'	Ngôn ngữ
+timezone	VARCHAR	50	DEFAULT 'Asia/Ho_Chi_Minh'	Múi giờ
+notification_enabled	BOOLEAN	—	DEFAULT TRUE	Bật/tắt thông báo
+
+7.8. SQL tạo Database
+CREATE DATABASE IF NOT EXISTS task_management_db
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+USE task_management_db;
+
+CREATE TABLE users (
+    user_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    avatar VARCHAR(255),
+    phone VARCHAR(15),
+    role ENUM('USER', 'ADMINISTRATOR') NOT NULL DEFAULT 'USER',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE categories (
+    category_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    category_name VARCHAR(100) NOT NULL,
+    description TEXT,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_categories_user
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE tasks (
+    task_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    category_id BIGINT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    priority ENUM('LOW', 'MEDIUM', 'HIGH') NOT NULL DEFAULT 'MEDIUM',
+    status ENUM('TODO', 'IN_PROGRESS', 'COMPLETED') NOT NULL DEFAULT 'TODO',
+    deadline DATETIME NULL,
+    reminder_time DATETIME NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_tasks_user
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_tasks_category
+        FOREIGN KEY (category_id) REFERENCES categories(category_id)
+        ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+CREATE TABLE notifications (
+    notification_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    content TEXT NOT NULL,
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_notifications_user
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE activity_logs (
+    log_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    action VARCHAR(100) NOT NULL,
+    description TEXT,
+    ip_address VARCHAR(45),
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_activity_logs_user
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE settings (
+    setting_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL UNIQUE,
+    theme VARCHAR(20) NOT NULL DEFAULT 'LIGHT',
+    language VARCHAR(20) NOT NULL DEFAULT 'vi',
+    timezone VARCHAR(50) NOT NULL DEFAULT 'Asia/Ho_Chi_Minh',
+    notification_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    CONSTRAINT fk_settings_user
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE INDEX idx_tasks_user ON tasks(user_id);
+CREATE INDEX idx_tasks_category ON tasks(category_id);
+CREATE INDEX idx_tasks_status ON tasks(status);
+CREATE INDEX idx_tasks_priority ON tasks(priority);
+CREATE INDEX idx_tasks_deadline ON tasks(deadline);
+CREATE INDEX idx_notifications_user ON notifications(user_id);
+CREATE INDEX idx_notifications_read ON notifications(is_read);
+CREATE INDEX idx_activity_logs_user ON activity_logs(user_id);
+CREATE INDEX idx_activity_logs_created ON activity_logs(created_at);
+
+7.9. Kiểm tra SRS → Use Case → Database
+7.9.1. Authentication
+SRS / FR	Use Case	Database	Kết quả
+FR-01 Đăng ký	UC01 Register	Users	Đạt
+FR-02 Đăng nhập	UC02 Login	Users	Đạt
+FR-03 Đăng xuất	UC03 Logout	Users	Đạt
+FR-04 Quên mật khẩu	UC04 Forgot Password	Users	Đạt
+FR-05 Đổi mật khẩu	UC05 Change Password	Users	Đạt
+FR-06 Cập nhật hồ sơ	UC06 Update Profile	Users	Đạt
+
+7.9.2. Category
+SRS / FR	Use Case	Database	Kết quả
+FR-08 Quản lý Category	UC07 Create Category	Categories	Đạt
+FR-08 Quản lý Category	UC08 Update Category	Categories	Đạt
+FR-08 Quản lý Category	UC09 Delete Category	Categories	Đạt
+
+7.9.3. Task
+SRS / FR	Use Case	Database	Kết quả
+FR-09 Thêm Task	UC10 Create Task	Tasks	Đạt
+FR-10 Sửa Task	UC11 Update Task	Tasks	Đạt
+FR-11 Xóa Task	UC12 Delete Task	Tasks	Đạt
+FR-12 Xem danh sách	UC13 View Task	Tasks	Đạt
+FR-13 Xem chi tiết	UC13 View Task	Tasks	Đạt
+FR-14 Hoàn thành	UC17 Mark Task Completed	Tasks.status	Đạt
+FR-15 Cập nhật Status	UC11 Update Task	Tasks.status	Đạt
+FR-16 Priority	UC10 / UC11	Tasks.priority	Đạt
+FR-17 Deadline	UC10 / UC11	Tasks.deadline	Đạt
+FR-18 Reminder	UC16 Set Reminder	Tasks.reminder_time	Đạt
+FR-19 Search	UC14 Search Task	Tasks	Đạt
+FR-20 Filter	UC15 Filter Task	Tasks	Đạt
+FR-21 Sort	UC15 Filter Task	Tasks	Đạt
+
+7.9.4. Dashboard và Notification
+SRS / FR	Use Case	Database	Kết quả
+FR-22 Thống kê số lượng Task	UC18 View Dashboard	Tasks	Đạt
+FR-23 Thống kê tiến độ	UC19 View Statistics	Tasks	Đạt
+FR-24 Nhận thông báo	UC16 / Notification	Notifications	Đạt
+
+7.9.5. Administrator
+SRS / FR	Use Case	Database	Kết quả
+FR-25 Quản lý User	UC20 Manage Users	Users	Đạt
+FR-26 Activity Log	UC20 Manage Users	ActivityLogs	Cần tách UC
+FR-27 Backup	UC20 Manage Users	Toàn bộ DB	Cần tách UC
+FR-28 Restore	UC20 Manage Users	Toàn bộ DB	Cần tách UC
+
+7.10. Kiểm tra Business Rules → Database
+Business Rule	Cách triển khai	Kết quả
+BR-01 Một tài khoản thuộc một người dùng	users.user_id PK	Đạt
+BR-02 Một User có nhiều Task	tasks.user_id FK	Đạt
+BR-03 Một Task thuộc một User	tasks.user_id NOT NULL	Đạt
+BR-04 Task thuộc Category	tasks.category_id FK, có thể NULL	Đạt
+BR-05 Deadline hợp lệ	Application validation	Cần xử lý Backend
+BR-06 Chỉ chủ sở hữu sửa Task	Application Authorization	Cần xử lý Backend
+BR-07 Chỉ chủ sở hữu xóa Task	Application Authorization	Cần xử lý Backend
+BR-08 Email duy nhất	users.email UNIQUE	Đạt
+BR-09 Password tối thiểu 8 ký tự	Application validation	Cần xử lý Backend
+BR-10 Reminder trước Deadline	Application validation	Cần xử lý Backend
+BR-11 Status hợp lệ	ENUM	Đạt
+BR-12 Priority hợp lệ	ENUM	Đạt
+BR-13 User chỉ xem dữ liệu của mình	Application Authorization	Cần xử lý Backend
+
+7.11. Các điểm cần chỉnh để SRS – Use Case – Database thống nhất 100%
+1. Category của Task
+Nên sửa Business Rule thành: BR-04 – Một Task có thể thuộc một Category hoặc chưa được phân loại. Database sử dụng category_id BIGINT NULL.
+2. Role
+Bổ sung Users.role với hai giá trị USER và ADMINISTRATOR để phù hợp với Actor và phân quyền.
+3. FR-07 chưa có Use Case
+FR-07 – Xóa tài khoản chưa có Use Case tương ứng. Có thể bổ sung UC21 – Delete Account, hoặc loại FR-07 nếu không triển khai.
+4. UC20 đang quá rộng
+Nên tách UC20 – Manage Users, UC21 – View Activity Logs, UC22 – Backup Database, UC23 – Restore Database. Nếu đồng thời bổ sung Delete Account thì đánh số lại tương ứng.
+7.12. Kết luận thiết kế Database
+Mô hình cơ sở dữ liệu gồm 6 bảng Users, Categories, Tasks, Notifications, ActivityLogs và Settings. Các khóa chính, khóa ngoại và cardinality đã được xác định. Database đáp ứng phần lớn Functional Requirements và Use Case hiện tại. Một số Business Rule như quyền sở hữu dữ liệu, kiểm tra Deadline và Reminder cần được thực thi tại Backend/Application Layer. Để đạt tính nhất quán 100%, cần xử lý FR-07 và tách UC20 đang bao quát nhiều chức năng quản trị.

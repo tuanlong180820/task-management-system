@@ -1,0 +1,530 @@
+UML DESIGN DOCUMENT
+HỆ THỐNG QUẢN LÝ CÔNG VIỆC CÁ NHÂN
+(TASK MANAGEMENT SYSTEM)
+Activity Diagram – Sequence Diagram – Class Diagram
+ 
+1. Mục tiêu thiết kế
+Tài liệu chuyển các yêu cầu SRS và bộ 24 Use Case của Hệ thống Quản lý Công việc cá nhân trên nền tảng Web thành thiết kế UML. Nội dung gồm 6 Activity Diagram, 7 Sequence Diagram và 1 Class Diagram tổng thể, đồng thời kiểm tra truy vết từ SRS → Use Case → UML → Database.
+2. Phạm vi và nguyên tắc thiết kế
+Thiết kế bám theo tài liệu Buổi 4: không vẽ cả 24 Activity Diagram mà chọn 6 luồng nghiệp vụ quan trọng; 7 Sequence Diagram tập trung vào các luồng có tương tác Controller → Service → Repository; Class Diagram mô hình hóa Entity, Controller, Service và Repository.
+3. Kiến trúc tổng quan
+Web Browser
+      ↓
+Controller Layer
+      ↓
+Service Layer
+      ↓
+Repository Layer
+      ↓
+Entity / Database
+      ↓
+MySQL
+Layer	Các lớp	Trách nhiệm
+Controller	UserController, CategoryController, TaskController, NotificationController, AdminController	Nhận request và trả response.
+Service	UserService, CategoryService, TaskService, NotificationService, AdminService	Business logic, validation, ownership, authorization.
+Repository	UserRepository, CategoryRepository, TaskRepository, NotificationRepository, ActivityLogRepository, SettingRepository	Truy cập database.
+Entity	User, Category, Task, Notification, ActivityLog, Setting	Mô hình dữ liệu nghiệp vụ.
+
+4. Activity Diagram
+Mã	Activity Diagram	Use Case liên quan
+AD01	Đăng ký và đăng nhập	UC01, UC02
+AD02	Tạo công việc	UC10
+AD03	Cập nhật / hoàn thành công việc	UC11, UC17
+AD04	Tìm kiếm và lọc công việc	UC13, UC14, UC15
+AD05	Thiết lập Reminder	UC16
+AD06	Xóa tài khoản	UC24
+
+AD01 – Đăng ký và đăng nhập
+UC01 cho phép Guest đăng ký; UC02 cho phép Guest đăng nhập. Sau khi đăng nhập hệ thống kiểm tra Role và chuyển tới Dashboard.
+@startuml
+title AD01 - Register / Login
+start
+:Open Task Management System;
+if (Register or Login?) then (Register)
+  :Enter full name, email and password;
+  :Validate input;
+  if (Valid?) then (Yes)
+    :Create User;
+    :Show registration success;
+    :Redirect to Login;
+  else (No)
+    :Show validation error;
+    stop
+  endif
+else (Login)
+  :Enter email and password;
+  :Authenticate account;
+  if (Valid credentials?) then (Yes)
+    :Create session/token;
+    :Check user role;
+    :Redirect to Dashboard;
+  else (No)
+    :Show login error;
+    stop
+  endif
+endif
+stop
+@enduml
+AD02 – Tạo Task
+UC10 yêu cầu User đăng nhập, nhập thông tin Task, Category tùy chọn, Priority, Deadline và Reminder tùy chọn trước khi lưu.
+@startuml
+title AD02 - Create Task
+start
+:Select Create Task;
+:Enter task information;
+:Select Category (optional);
+:Select Priority;
+:Enter Deadline;
+if (Set Reminder?) then (Yes)
+  :Select Reminder Time;
+endif
+:Validate Task data;
+if (Data valid?) then (Yes)
+  :Save Task;
+  if (Reminder enabled?) then (Yes)
+    :Create Notification;
+  endif
+  :Show success message;
+else (No)
+  :Show validation error;
+  :Return to Task form;
+endif
+stop
+@enduml
+AD03 – Cập nhật / hoàn thành Task
+UC11 cho phép cập nhật Task; UC17 là trường hợp đánh dấu Completed và được mô hình hóa là mở rộng của UC11.
+@startuml
+title AD03 - Update / Complete Task
+start
+:Select Task;
+:Check ownership;
+if (Authorized?) then (No)
+  :Show authorization error;
+  stop
+else (Yes)
+  :Edit Task;
+  if (Mark Completed?) then (Yes)
+    :Set status = COMPLETED;
+  endif
+  :Validate data;
+  :Save changes;
+  :Update statistics;
+  :Show success message;
+endif
+stop
+@enduml
+AD04 – Search / Filter / Sort
+UC13 hiển thị Task; UC14 Search và UC15 Filter/Sort mở rộng thao tác xem danh sách.
+@startuml
+title AD04 - Search / Filter / Sort Task
+start
+:Open Task list;
+:Display user's Tasks;
+if (Search / Filter / Sort?) then (Yes)
+  :Enter keyword or select conditions;
+  :Query Task data;
+  if (Has results?) then (Yes)
+    :Display results;
+  else (No)
+    :Show no-result message;
+  endif
+endif
+stop
+@enduml
+AD05 – Set Reminder
+UC16 thực hiện: chọn Task → kiểm tra quyền → bật Reminder → chọn thời điểm → kiểm tra → lưu → tạo Notification.
+@startuml
+title AD05 - Set Reminder
+start
+:Select Task;
+:Check ownership;
+:Enable Reminder;
+:Select reminder time;
+:Validate Reminder;
+if (Valid?) then (Yes)
+  :Save Reminder;
+  :Create Notification;
+  :Show success message;
+else (No)
+  :Show validation error;
+endif
+stop
+@enduml
+AD06 – Delete Account
+UC24 giải quyết FR-07: User xác nhận xóa tài khoản, hệ thống xóa User và FK CASCADE xử lý dữ liệu phụ thuộc.
+@startuml
+title AD06 - Delete Account
+start
+:Open Account Settings;
+:Select Delete Account;
+:Show warning;
+if (Confirm?) then (No)
+  :Cancel;
+  stop
+else (Yes)
+  :Authenticate request;
+  :Delete User;
+  :ON DELETE CASCADE dependent data;
+  :Show success message;
+endif
+stop
+@enduml
+5. Sequence Diagram
+Mã	Sequence Diagram	Use Case
+SD01	Login	UC02
+SD02	Register	UC01
+SD03	Create Task	UC10
+SD04	Update Task	UC11
+SD05	Delete Task	UC12
+SD06	Search / Filter	UC14, UC15
+SD07	Set Reminder	UC16
+
+SD01 – Login
+@startuml
+title SD01 - Login
+actor User
+participant UserController
+participant UserService
+participant UserRepository
+database MySQL
+User -> UserController: login(email,password)
+UserController -> UserService: authenticate()
+UserService -> UserRepository: findByEmail(email)
+UserRepository -> MySQL: SELECT User
+MySQL --> UserRepository: User
+UserRepository --> UserService: User
+UserService -> UserService: verifyPassword()
+UserService --> UserController: token/session
+UserController --> User: Login success / error
+@enduml
+SD02 – Register
+@startuml
+title SD02 - Register
+actor Guest
+participant UserController
+participant UserService
+participant UserRepository
+database MySQL
+Guest -> UserController: register(data)
+UserController -> UserService: validate(data)
+UserService -> UserRepository: existsByEmail(email)
+UserRepository -> MySQL: SELECT by email
+MySQL --> UserRepository: result
+UserRepository --> UserService: result
+UserService -> UserRepository: save(User)
+UserRepository -> MySQL: INSERT User
+MySQL --> UserRepository: saved
+UserRepository --> UserService: User
+UserService --> UserController: success
+UserController --> Guest: Registration success
+@enduml
+SD03 – Create Task
+@startuml
+title SD03 - Create Task
+actor User
+participant TaskController
+participant TaskService
+participant TaskRepository
+participant NotificationService
+participant NotificationRepository
+database MySQL
+
+User -> TaskController: createTask(data)
+TaskController -> TaskService: createTask(data, userId)
+TaskService -> TaskService: validateTask()
+TaskService -> TaskRepository: save(Task)
+TaskRepository -> MySQL: INSERT Task
+MySQL --> TaskRepository: saved
+TaskRepository --> TaskService: Task
+
+alt Reminder enabled
+    TaskService -> NotificationService: createNotification()
+    NotificationService -> NotificationRepository: save(Notification)
+    NotificationRepository -> MySQL: INSERT Notification
+    MySQL --> NotificationRepository: saved
+    NotificationRepository --> NotificationService: Notification
+    NotificationService --> TaskService: success
+end
+
+TaskService --> TaskController: result
+TaskController --> User: success
+@enduml
+SD04 – Update Task
+@startuml
+title SD04 - Update Task
+actor User
+participant TaskController
+participant TaskService
+participant TaskRepository
+database MySQL
+User -> TaskController: updateTask(taskId,data)
+TaskController -> TaskService: updateTask()
+TaskService -> TaskRepository: findById(taskId)
+TaskRepository -> MySQL: SELECT Task
+MySQL --> TaskRepository: Task
+TaskService -> TaskService: checkOwnership()
+TaskService -> TaskService: validateTask()
+TaskService -> TaskRepository: save(Task)
+TaskRepository -> MySQL: UPDATE Task
+MySQL --> TaskRepository: updated
+TaskRepository --> TaskService: Task
+TaskService --> TaskController: success
+TaskController --> User: Updated
+@enduml
+SD05 – Delete Task
+@startuml
+title SD05 - Delete Task
+actor User
+participant TaskController
+participant TaskService
+participant TaskRepository
+database MySQL
+User -> TaskController: deleteTask(taskId)
+TaskController -> TaskService: deleteTask(taskId,userId)
+TaskService -> TaskRepository: findById(taskId)
+TaskRepository -> MySQL: SELECT Task
+MySQL --> TaskRepository: Task
+TaskService -> TaskService: checkOwnership()
+TaskService -> TaskRepository: delete(taskId)
+TaskRepository -> MySQL: DELETE Task
+MySQL --> TaskRepository: deleted
+TaskService --> TaskController: success
+TaskController --> User: Deleted
+@enduml
+SD06 – Search / Filter
+@startuml
+title SD06 - Search / Filter
+actor User
+participant TaskController
+participant TaskService
+participant TaskRepository
+database MySQL
+User -> TaskController: search/filter/sort(criteria)
+TaskController -> TaskService: query(criteria,userId)
+TaskService -> TaskRepository: findByCriteria()
+TaskRepository -> MySQL: SELECT Tasks WHERE user_id = currentUser
+MySQL --> TaskRepository: results
+TaskRepository --> TaskService: results
+TaskService --> TaskController: results
+TaskController --> User: Display results
+@enduml
+SD07 – Set Reminder
+@startuml
+title SD07 - Set Reminder
+actor User
+participant TaskController
+participant TaskService
+participant NotificationService
+participant NotificationRepository
+participant TaskRepository
+database MySQL
+
+User -> TaskController: setReminder(taskId, time)
+TaskController -> TaskService: setReminder(taskId, time, userId)
+TaskService -> TaskRepository: findById(taskId)
+TaskRepository -> MySQL: SELECT Task
+MySQL --> TaskRepository: Task
+TaskRepository --> TaskService: Task
+
+TaskService -> TaskService: checkOwnership()
+TaskService -> TaskService: validateReminder()
+TaskService -> NotificationService: createNotification()
+NotificationService -> NotificationRepository: save(Notification)
+NotificationRepository -> MySQL: INSERT Notification
+MySQL --> NotificationRepository: saved
+NotificationRepository --> NotificationService: Notification
+NotificationService --> TaskService: success
+
+TaskService --> TaskController: success
+TaskController --> User: Reminder saved
+@enduml
+6. Class Diagram tổng thể
+Class Diagram phản ánh kiến trúc Controller → Service → Repository → Entity và 6 bảng chính: Users, Categories, Tasks, Notifications, ActivityLogs, Settings. Business Rule về ownership/authorization được xử lý ở Service/Security layer; không ép toàn bộ Business Rule vào SQL.
+@startuml
+title Task Management System - Overall Class Diagram
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "Controller Layer" {
+    class UserController
+    class CategoryController
+    class TaskController
+    class NotificationController
+    class AdminController
+}
+
+package "Service Layer" {
+    class UserService
+    class CategoryService
+    class TaskService
+    class NotificationService
+    class AdminService
+}
+
+package "Repository Layer" {
+    interface UserRepository
+    interface CategoryRepository
+    interface TaskRepository
+    interface NotificationRepository
+    interface ActivityLogRepository
+    interface SettingRepository
+}
+
+package "Entity Layer" {
+    class User {
+        +userId : Long
+        +fullName : String
+        +email : String
+        +password : String
+        +avatar : String
+        +phone : String
+        +role : Role
+        +createdAt : LocalDateTime
+        +updatedAt : LocalDateTime
+    }
+
+    class Category {
+        +categoryId : Long
+        +user : User
+        +categoryName : String
+        +description : String
+        +createdAt : LocalDateTime
+    }
+
+    class Task {
+        +taskId : Long
+        +user : User
+        +category : Category
+        +title : String
+        +description : String
+        +priority : Priority
+        +status : TaskStatus
+        +deadline : LocalDateTime
+        +reminderTime : LocalDateTime
+        +createdAt : LocalDateTime
+        +updatedAt : LocalDateTime
+    }
+
+    class Notification {
+        +notificationId : Long
+        +user : User
+        +title : String
+        +content : String
+        +isRead : Boolean
+        +createdAt : LocalDateTime
+    }
+
+    class ActivityLog {
+        +logId : Long
+        +user : User
+        +action : String
+        +description : String
+        +ipAddress : String
+        +createdAt : LocalDateTime
+    }
+
+    class Setting {
+        +settingId : Long
+        +user : User
+        +theme : String
+        +language : String
+        +timezone : String
+        +notificationEnabled : Boolean
+    }
+
+    enum Role {
+        USER
+        ADMINISTRATOR
+    }
+
+    enum TaskStatus {
+        TODO
+        IN_PROGRESS
+        COMPLETED
+    }
+
+    enum Priority {
+        LOW
+        MEDIUM
+        HIGH
+    }
+}
+
+' Controller -> Service
+UserController --> UserService
+CategoryController --> CategoryService
+TaskController --> TaskService
+NotificationController --> NotificationService
+AdminController --> AdminService
+
+' Service -> Repository
+UserService --> UserRepository
+CategoryService --> CategoryRepository
+TaskService --> TaskRepository
+TaskService --> NotificationService
+NotificationService --> NotificationRepository
+AdminService --> UserRepository
+AdminService --> ActivityLogRepository
+AdminService --> SettingRepository
+
+' Repository -> Entity
+UserRepository ..> User
+CategoryRepository ..> Category
+TaskRepository ..> Task
+NotificationRepository ..> Notification
+ActivityLogRepository ..> ActivityLog
+SettingRepository ..> Setting
+
+' Entity relationships
+User "1" -- "0..*" Category : owns
+User "1" -- "0..*" Task : owns
+Category "0..1" -- "0..*" Task : classifies
+User "1" -- "0..*" Notification : receives
+User "1" -- "0..*" ActivityLog : generates
+User "1" -- "0..1" Setting : has
+
+' Enum relationships
+User --> Role
+Task --> TaskStatus
+Task --> Priority
+
+@enduml
+Entity	Database	Quan hệ
+User	Users	1:N Categories; 1:N Tasks; 1:N Notifications; 1:N ActivityLogs; 1:0..1 Settings
+Category	Categories	N:1 User; 1:N Tasks
+Task	Tasks	N:1 User; N:0..1 Category
+Notification	Notifications	N:1 User
+ActivityLog	ActivityLogs	N:1 User
+Setting	Settings	1:0..1 User; user_id UNIQUE
+
+7. Quan hệ giữa các Use Case và UML
+FR	Use Case	UML	Database/Lớp chính
+FR-01	UC01 Register	AD01, SD02	UserController → UserService → UserRepository → Users
+FR-02	UC02 Login	AD01, SD01	UserController → UserService → UserRepository → Users
+FR-09	UC10 Create Task	AD02, SD03	TaskController → TaskService → TaskRepository → Tasks
+FR-10	UC11 Update Task	AD03, SD04	TaskController → TaskService → TaskRepository → Tasks
+FR-11	UC12 Delete Task	—, SD05	TaskController → TaskService → TaskRepository → Tasks
+FR-19–FR-21	UC14–UC15 Search/Filter/Sort	AD04, SD06	TaskController → TaskService → TaskRepository → Tasks
+FR-18, FR-24	UC16 Set Reminder	AD05, SD07	TaskService → NotificationService → Notifications
+FR-07	UC24 Delete Account	AD06	User → Users; FK ON DELETE CASCADE
+FR-25	UC20 Manage Users	Class Diagram	AdminController → AdminService → Users
+FR-26	UC21 View Activity Logs	Class Diagram	AdminService → ActivityLogRepository → ActivityLogs
+FR-27	UC22 Backup Database	Architecture	Database/Infrastructure; không có Entity Backup
+FR-28	UC23 Restore Database	Architecture	Database/Infrastructure; không có Entity Restore
+
+8. Kiểm tra tính nhất quán
+Kiểm tra	Kết quả	Giải thích
+FR-01 → UC01 → AD01 → SD02 → User	Đạt	Đầy đủ truy vết đăng ký.
+FR-02 → UC02 → AD01 → SD01 → User	Đạt	Đầy đủ truy vết đăng nhập.
+FR-09 → UC10 → AD02 → SD03 → Task	Đạt	Task là Entity trung tâm.
+FR-10/14/15 → UC11/UC17 → AD03 → SD04	Đạt	Cập nhật và hoàn thành Task thống nhất.
+FR-19/20/21 → UC14/UC15 → AD04 → SD06	Đạt	Search/Filter/Sort thuộc luồng xem Task.
+FR-18/24 → UC16 → AD05 → SD07 → Notification	Đạt	Reminder tạo Notification.
+FR-07 → UC24 → AD06 → Users + CASCADE	Đạt	Đã bổ sung Use Case cho Delete Account.
+UC20–UC23	Đạt	Được tách riêng khỏi UC20 Manage Users.
+Backup/Restore	Đạt	Không tạo bảng Backup/Restore; thao tác trên toàn DB.
+Business Rules	Đạt	Validation/authorization ở Backend; constraint phù hợp ở DB.
+
+9. Ghi chú triển khai
+Các đoạn PlantUML trong tài liệu có thể dùng trực tiếp để dựng hình PNG/SVG. SD03 và SD07 đã được thống nhất theo kiến trúc Controller → Service → Repository → Database. Class Diagram sử dụng object reference giữa Entity để phù hợp với hướng triển khai JPA.
+Thứ tự thực hiện: Activity Diagram → Sequence Diagram → Class Diagram → đối chiếu Database → bắt đầu Buổi 5. Thiết kế này giữ nguyên các thay đổi đã thống nhất: UC20 Manage Users được tách khỏi Activity Logs/Backup/Restore; UC24 Delete Account được bổ sung để bao phủ FR-07.

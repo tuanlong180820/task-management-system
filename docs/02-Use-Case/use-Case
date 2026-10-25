@@ -1,0 +1,408 @@
+USE CASE SPECIFICATION
+HỆ THỐNG QUẢN LÝ CÔNG VIỆC CÁ NHÂN
+(TASK MANAGEMENT SYSTEM)
+ 
+Chương 1. Giới thiệu
+1.1 Mục đích
+Tài liệu đặc tả Use Case mô tả các tương tác giữa Actor và hệ thống, làm cơ sở cho thiết kế UML, phát triển chức năng, thiết kế Database và xây dựng Test Case.
+1.2 Phạm vi
+Áp dụng cho toàn bộ Task Management System, bao gồm chức năng dành cho Guest, User và Administrator.
+Chương 2. Danh sách Actor
+Actor	Quyền/Chức năng
+Guest	Register, Login, Forgot Password.
+User	Logout, Change Password, Update Profile, Category, Task, Search, Filter/Sort, Reminder, Completed, Dashboard, Statistics, Delete Account.
+Administrator	Manage Users, View Activity Logs, Backup Database, Restore Database.
+
+Chương 3. Danh sách 24 Use Case
+ID	Use Case	Actor
+UC01	Register	Guest
+UC02	Login	Guest
+UC03	Logout	User
+UC04	Forgot Password	Guest
+UC05	Change Password	User
+UC06	Update Profile	User
+UC07	Create Category	User
+UC08	Update Category	User
+UC09	Delete Category	User
+UC10	Create Task	User
+UC11	Update Task	User
+UC12	Delete Task	User
+UC13	View Task	User
+UC14	Search Task	User
+UC15	Filter / Sort Task	User
+UC16	Set Reminder	User
+UC17	Mark Task Completed	User
+UC18	View Dashboard	User
+UC19	View Statistics	User
+UC20	Manage Users	Administrator
+UC21	View Activity Logs	Administrator
+UC22	Backup Database	Administrator
+UC23	Restore Database	Administrator
+UC24	Delete Account	User
+
+Chương 4. Use Case Diagram – mô tả
+TASK MANAGEMENT SYSTEM
+                           /       \
+                        Guest       User
+                         |           |
+              Register/Login     Manage Profile
+              Forgot Password    Category
+                                  Task
+                                  Search / Filter / Sort
+                                  Reminder / Completed
+                                  Dashboard / Statistics
+                                  Delete Account
+
+                           Administrator
+                                |
+                Manage Users / Activity Logs
+                     Backup / Restore
+Trong sơ đồ UML, UC20–UC23 chỉ được nối với Administrator; UC24 chỉ được nối với User. UC02 Login là điều kiện tiền đề để truy cập các chức năng yêu cầu xác thực.
+Chương 5. Đặc tả Use Case
+UC01 – Register
+Thuộc tính	Nội dung
+Use Case ID	UC01
+Use Case Name	Register
+Actor	Guest
+Mục tiêu	Tạo tài khoản mới.
+Tiền điều kiện	Chưa có tài khoản.
+Hậu điều kiện	Tài khoản được tạo.
+Luồng chính	Chọn Đăng ký → nhập họ tên/email/mật khẩu → kiểm tra dữ liệu → lưu Users → thông báo thành công.
+Luồng thay thế	Email đã tồn tại hoặc dữ liệu không hợp lệ.
+
+UC02 – Login
+Thuộc tính	Nội dung
+Use Case ID	UC02
+Use Case Name	Login
+Actor	Guest
+Mục tiêu	Đăng nhập hệ thống.
+Tiền điều kiện	Có tài khoản hợp lệ.
+Hậu điều kiện	Được cấp quyền truy cập theo role.
+Luồng chính	Nhập email/mật khẩu → xác thực → tạo token/phiên → chuyển Dashboard.
+Luồng thay thế	Sai thông tin hoặc tài khoản bị khóa.
+
+UC03 – Logout
+Thuộc tính	Nội dung
+Use Case ID	UC03
+Use Case Name	Logout
+Actor	User
+Mục tiêu	Kết thúc phiên làm việc.
+Tiền điều kiện	Đang đăng nhập.
+Hậu điều kiện	Phiên/token bị hủy hoặc vô hiệu hóa.
+Luồng chính	Chọn Đăng xuất → hệ thống kết thúc phiên → về trang đăng nhập.
+Luồng thay thế	Phiên đã hết hạn.
+
+UC04 – Forgot Password
+Thuộc tính	Nội dung
+Use Case ID	UC04
+Use Case Name	Forgot Password
+Actor	Guest
+Mục tiêu	Yêu cầu đặt lại mật khẩu.
+Tiền điều kiện	Email tồn tại.
+Hậu điều kiện	Email reset được gửi.
+Luồng chính	Nhập email → kiểm tra → tạo yêu cầu reset → gửi liên kết.
+Luồng thay thế	Email không tồn tại hoặc gửi email thất bại.
+
+UC05 – Change Password
+Thuộc tính	Nội dung
+Use Case ID	UC05
+Use Case Name	Change Password
+Actor	User
+Mục tiêu	Thay đổi mật khẩu.
+Tiền điều kiện	Đã đăng nhập.
+Hậu điều kiện	Mật khẩu mới được lưu.
+Luồng chính	Nhập mật khẩu cũ/mới → xác thực → cập nhật password.
+Luồng thay thế	Mật khẩu cũ sai hoặc mật khẩu mới không hợp lệ.
+
+UC06 – Update Profile
+Thuộc tính	Nội dung
+Use Case ID	UC06
+Use Case Name	Update Profile
+Actor	User
+Mục tiêu	Cập nhật hồ sơ cá nhân.
+Tiền điều kiện	Đã đăng nhập.
+Hậu điều kiện	Hồ sơ được cập nhật.
+Luồng chính	Mở hồ sơ → sửa thông tin → kiểm tra → lưu Users.
+Luồng thay thế	Dữ liệu không hợp lệ.
+
+UC07 – Create Category
+Thuộc tính	Nội dung
+Use Case ID	UC07
+Use Case Name	Create Category
+Actor	User
+Mục tiêu	Tạo Category.
+Tiền điều kiện	Đã đăng nhập.
+Hậu điều kiện	Category mới được tạo.
+Luồng chính	Mở Category → chọn tạo mới → nhập tên/mô tả → lưu.
+Luồng thay thế	Tên trống hoặc dữ liệu không hợp lệ.
+
+UC08 – Update Category
+Thuộc tính	Nội dung
+Use Case ID	UC08
+Use Case Name	Update Category
+Actor	User
+Mục tiêu	Sửa Category.
+Tiền điều kiện	Đã đăng nhập; Category thuộc User.
+Hậu điều kiện	Category được cập nhật.
+Luồng chính	Chọn Category → sửa → kiểm tra → lưu.
+Luồng thay thế	Category không tồn tại hoặc không có quyền.
+
+UC09 – Delete Category
+Thuộc tính	Nội dung
+Use Case ID	UC09
+Use Case Name	Delete Category
+Actor	User
+Mục tiêu	Xóa Category.
+Tiền điều kiện	Đã đăng nhập; Category thuộc User.
+Hậu điều kiện	Category bị xóa.
+Luồng chính	Chọn Category → xác nhận → xóa.
+Luồng thay thế	Category không tồn tại hoặc thao tác bị từ chối.
+
+UC10 – Create Task
+Thuộc tính	Nội dung
+Use Case ID	UC10
+Use Case Name	Create Task
+Actor	User
+Mục tiêu	Tạo công việc mới.
+Tiền điều kiện	Đã đăng nhập.
+Hậu điều kiện	Task được lưu.
+Luồng chính	Chọn tạo Task → nhập dữ liệu → chọn Category tùy chọn → Priority/Deadline/Reminder → kiểm tra → lưu.
+Luồng thay thế	Dữ liệu không hợp lệ, Deadline/Reminder vi phạm rule.
+
+UC11 – Update Task
+Thuộc tính	Nội dung
+Use Case ID	UC11
+Use Case Name	Update Task
+Actor	User
+Mục tiêu	Cập nhật Task.
+Tiền điều kiện	Đã đăng nhập và là chủ sở hữu.
+Hậu điều kiện	Task được cập nhật.
+Luồng chính	Mở Task → sửa thông tin → cập nhật Status/Priority/Deadline/Reminder → lưu.
+Luồng thay thế	Task không tồn tại hoặc không có quyền.
+
+UC12 – Delete Task
+Thuộc tính	Nội dung
+Use Case ID	UC12
+Use Case Name	Delete Task
+Actor	User
+Mục tiêu	Xóa Task.
+Tiền điều kiện	Đã đăng nhập và là chủ sở hữu.
+Hậu điều kiện	Task bị xóa.
+Luồng chính	Chọn Task → Delete → xác nhận → xóa.
+Luồng thay thế	Task không tồn tại hoặc không có quyền.
+
+UC13 – View Task
+Thuộc tính	Nội dung
+Use Case ID	UC13
+Use Case Name	View Task
+Actor	User
+Mục tiêu	Xem danh sách/chi tiết Task.
+Tiền điều kiện	Đã đăng nhập.
+Hậu điều kiện	Task được hiển thị.
+Luồng chính	Mở danh sách → chọn Task để xem chi tiết.
+Luồng thay thế	Không có Task hoặc Task không thuộc quyền xem.
+
+UC14 – Search Task
+Thuộc tính	Nội dung
+Use Case ID	UC14
+Use Case Name	Search Task
+Actor	User
+Mục tiêu	Tìm Task theo từ khóa.
+Tiền điều kiện	Đã đăng nhập.
+Hậu điều kiện	Kết quả phù hợp được hiển thị.
+Luồng chính	Nhập từ khóa → gửi tìm kiếm → hệ thống truy vấn → hiển thị kết quả.
+Luồng thay thế	Không có kết quả.
+
+UC15 – Filter / Sort Task
+Thuộc tính	Nội dung
+Use Case ID	UC15
+Use Case Name	Filter / Sort Task
+Actor	User
+Mục tiêu	Lọc và sắp xếp danh sách Task.
+Tiền điều kiện	Đã đăng nhập.
+Hậu điều kiện	Danh sách được lọc/sắp xếp.
+Luồng chính	Chọn điều kiện lọc/sắp xếp → áp dụng → hiển thị danh sách.
+Luồng thay thế	Không có Task phù hợp.
+
+UC16 – Set Reminder
+Thuộc tính	Nội dung
+Use Case ID	UC16
+Use Case Name	Set Reminder
+Actor	User
+Mục tiêu	Thiết lập reminder cho Task.
+Tiền điều kiện	Đã đăng nhập và có quyền với Task.
+Hậu điều kiện	Reminder được lưu; Notification được tạo theo lịch.
+Luồng chính	Chọn Task → bật Reminder → chọn thời điểm → kiểm tra → lưu.
+Luồng thay thế	Thời điểm reminder không hợp lệ.
+
+UC17 – Mark Task Completed
+Thuộc tính	Nội dung
+Use Case ID	UC17
+Use Case Name	Mark Task Completed
+Actor	User
+Mục tiêu	Đánh dấu Task hoàn thành.
+Tiền điều kiện	Đã đăng nhập và là chủ sở hữu.
+Hậu điều kiện	Status = Completed.
+Luồng chính	Chọn hoàn thành → hệ thống kiểm tra → cập nhật status → cập nhật thống kê.
+Luồng thay thế	Task không tồn tại hoặc bị hạn chế bởi rule.
+
+UC18 – View Dashboard
+Thuộc tính	Nội dung
+Use Case ID	UC18
+Use Case Name	View Dashboard
+Actor	User
+Mục tiêu	Xem tổng quan công việc.
+Tiền điều kiện	Đã đăng nhập.
+Hậu điều kiện	Dashboard hiển thị.
+Luồng chính	Mở Dashboard → hệ thống lấy thống kê và Task gần hạn → hiển thị.
+Luồng thay thế	Chưa có dữ liệu.
+
+UC19 – View Statistics
+Thuộc tính	Nội dung
+Use Case ID	UC19
+Use Case Name	View Statistics
+Actor	User
+Mục tiêu	Xem thống kê hiệu suất.
+Tiền điều kiện	Đã đăng nhập.
+Hậu điều kiện	Báo cáo thống kê hiển thị.
+Luồng chính	Chọn Statistics → tổng hợp dữ liệu → hiển thị số liệu/biểu đồ.
+Luồng thay thế	Chưa có dữ liệu.
+
+UC20 – Manage Users
+Thuộc tính	Nội dung
+Use Case ID	UC20
+Use Case Name	Manage Users
+Actor	Administrator
+Mục tiêu	Quản lý tài khoản User.
+Tiền điều kiện	Administrator đã đăng nhập.
+Hậu điều kiện	Thông tin/trạng thái User được cập nhật.
+Luồng chính	Mở quản lý User → chọn User → xem/sửa/khóa/mở khóa → lưu.
+Luồng thay thế	User không tồn tại hoặc thao tác không hợp lệ.
+
+UC21 – View Activity Logs
+Thuộc tính	Nội dung
+Use Case ID	UC21
+Use Case Name	View Activity Logs
+Actor	Administrator
+Mục tiêu	Xem lịch sử thao tác.
+Tiền điều kiện	Administrator đã đăng nhập.
+Hậu điều kiện	Log được hiển thị.
+Luồng chính	Mở Activity Logs → chọn bộ lọc → truy vấn → hiển thị.
+Luồng thay thế	Không có log hoặc không có quyền.
+
+UC22 – Backup Database
+Thuộc tính	Nội dung
+Use Case ID	UC22
+Use Case Name	Backup Database
+Actor	Administrator
+Mục tiêu	Sao lưu toàn bộ database.
+Tiền điều kiện	Administrator đã đăng nhập.
+Hậu điều kiện	Bản backup được tạo.
+Luồng chính	Chọn Backup → xác nhận → hệ thống dump toàn DB → lưu file backup.
+Luồng thay thế	Backup thất bại hoặc không đủ dung lượng/quyền.
+
+UC23 – Restore Database
+Thuộc tính	Nội dung
+Use Case ID	UC23
+Use Case Name	Restore Database
+Actor	Administrator
+Mục tiêu	Khôi phục toàn bộ database.
+Tiền điều kiện	Administrator đã đăng nhập; backup hợp lệ tồn tại.
+Hậu điều kiện	Database được khôi phục.
+Luồng chính	Chọn Restore → chọn backup → xác nhận → kiểm tra file → restore.
+Luồng thay thế	File backup lỗi/không hợp lệ.
+
+UC24 – Delete Account
+Thuộc tính	Nội dung
+Use Case ID	UC24
+Use Case Name	Delete Account
+Actor	User
+Mục tiêu	Xóa tài khoản của chính mình.
+Tiền điều kiện	User đã đăng nhập.
+Hậu điều kiện	User và dữ liệu phụ thuộc được xóa theo chính sách CASCADE.
+Luồng chính	Mở cài đặt tài khoản → chọn Delete Account → xác nhận → hệ thống xóa Users → FK cascade xử lý dữ liệu liên quan.
+Luồng thay thế	Hủy xác nhận, xác thực thất bại hoặc thao tác không được phép.
+
+Chương 6. Quan hệ giữa các Use Case
+6.1 Login là tiền điều kiện
+UC02 – Login là tiền điều kiện để thực hiện UC03, UC05, UC06, UC07, UC08, UC09, UC10, UC11, UC12, UC13, UC14, UC15, UC16, UC17, UC18, UC19 và UC24; Administrator phải đăng nhập trước khi thực hiện UC20–UC23.
+6.2 Quan hệ include/extend
+Use Case nguồn	Quan hệ	Use Case đích / giải thích
+UC10 Create Task	<<include>>	Thiết lập Priority và Deadline; <<extend>> UC16 Set Reminder nếu người dùng chọn Reminder.
+UC11 Update Task	<<include>>	Cập nhật các thuộc tính Task; <<extend>> UC16 Set Reminder khi cần.
+UC18 View Dashboard	<<include>>	UC19 View Statistics vì Dashboard sử dụng dữ liệu thống kê.
+UC17 Mark Task Completed	<<extend>>	UC11 Update Task vì hoàn thành là một trường hợp đặc biệt của cập nhật status.
+UC14 Search Task	<<extend>>	UC13 View Task vì tìm kiếm là hành vi mở rộng của xem danh sách.
+UC15 Filter / Sort Task	<<extend>>	UC13 View Task vì lọc/sắp xếp mở rộng thao tác xem danh sách.
+UC04 Forgot Password	<<extend>>	UC02 Login vì chỉ phát sinh khi người dùng không nhớ thông tin đăng nhập.
+
+Không dùng UC21/UC22 cho Deadline/Priority. Deadline và Priority là chức năng thuộc UC10/UC11 và được biểu diễn bằng FR-17/FR-16, tránh tạo thêm Use Case không có trong bộ 24 Use Case chính thức.
+Chương 7. Use Case Matrix
+Use Case	Tên Use Case	Functional Requirement liên quan
+UC01	Register	FR-01
+UC02	Login	FR-02
+UC03	Logout	FR-03
+UC04	Forgot Password	FR-04
+UC05	Change Password	FR-05
+UC06	Update Profile	FR-06
+UC07	Create Category	FR-08
+UC08	Update Category	FR-08
+UC09	Delete Category	FR-08
+UC10	Create Task	FR-09, FR-16, FR-17, FR-18
+UC11	Update Task	FR-10, FR-15, FR-16, FR-17, FR-18
+UC12	Delete Task	FR-11
+UC13	View Task	FR-12, FR-13
+UC14	Search Task	FR-19
+UC15	Filter / Sort Task	FR-20, FR-21
+UC16	Set Reminder	FR-18, FR-24
+UC17	Mark Task Completed	FR-14, FR-15
+UC18	View Dashboard	FR-22, FR-23
+UC19	View Statistics	FR-22, FR-23
+UC20	Manage Users	FR-25
+UC21	View Activity Logs	FR-26
+UC22	Backup Database	FR-27
+UC23	Restore Database	FR-28
+UC24	Delete Account	FR-07
+
+7.1 Ma trận FR → Use Case
+FR	Mô tả	Use Case
+FR-01	UC01	
+FR-02	UC02	
+FR-03	UC03	
+FR-04	UC04	
+FR-05	UC05	
+FR-06	UC06	
+FR-07	UC24	
+FR-08	UC07, UC08, UC09	
+FR-09	UC10	
+FR-10	UC11	
+FR-11	UC12	
+FR-12	UC13	
+FR-13	UC13	
+FR-14	UC17	
+FR-15	UC11, UC17	
+FR-16	UC10, UC11	
+FR-17	UC10, UC11	
+FR-18	UC10, UC11, UC16	
+FR-19	UC14	
+FR-20	UC15	
+FR-21	UC15	
+FR-22	UC18, UC19	
+FR-23	UC18, UC19	
+FR-24	UC16	
+FR-25	UC20	
+FR-26	UC21	
+FR-27	UC22	
+FR-28	UC23	
+
+7.2 Kiểm tra tính nhất quán
+Hạng mục	Kết quả
+FR-01 → FR-28 đều có Use Case	Đạt – 28/28
+UC01 → UC24 không trùng ID	Đạt
+UC20–UC23 tách riêng chức năng Administrator	Đạt
+FR-07 được ánh xạ UC24 Delete Account	Đạt
+Delete Account tác động Users và dữ liệu phụ thuộc qua FK CASCADE	Đạt
+Backup/Restore không tạo Entity/Table riêng	Đạt
+Category của Task có thể NULL	Đạt – thống nhất với Database
+Role USER/ADMINISTRATOR	Đạt – thống nhất với SRS/Database
+

@@ -1,0 +1,525 @@
+SOFTWARE REQUIREMENTS SPECIFICATION
+HỆ THỐNG QUẢN LÝ CÔNG VIỆC CÁ NHÂN
+(TASK MANAGEMENT SYSTEM)
+Phiên bản đã hiệu chỉnh – thống nhất SRS ↔ Use Case ↔ Database
+ 
+Chương 1. Giới thiệu
+1.1 Mục đích
+Tài liệu Software Requirements Specification (SRS) mô tả đầy đủ các yêu cầu chức năng, yêu cầu phi chức năng, quy tắc nghiệp vụ, tác nhân và phạm vi của Hệ thống Quản lý Công việc cá nhân (Task Management System) trên nền tảng Web. Tài liệu là cơ sở để phân tích, thiết kế UML, thiết kế cơ sở dữ liệu, lập trình, kiểm thử và nghiệm thu hệ thống.
+1.2 Phạm vi
+Hệ thống cho phép người dùng đăng ký, đăng nhập, quản lý hồ sơ, tạo và quản lý danh mục, tạo và theo dõi công việc, thiết lập mức ưu tiên, deadline, reminder, tìm kiếm/lọc/sắp xếp, xem Dashboard và thống kê. Quản trị viên có quyền quản lý người dùng, xem Activity Log, sao lưu và khôi phục dữ liệu.
+1.3 Đối tượng sử dụng
+Actor	Vai trò
+Guest	Đăng ký, đăng nhập, yêu cầu quên mật khẩu.
+User	Quản lý hồ sơ, Category, Task, reminder, notification, Dashboard và thống kê; có thể xóa tài khoản của chính mình.
+Administrator	Quản lý người dùng, Activity Log, Backup và Restore; thực hiện các quyền quản trị theo RBAC.
+
+1.4 Thuật ngữ
+Thuật ngữ	Giải thích
+User	Người sử dụng hệ thống.
+Task	Công việc cá nhân.
+Category	Danh mục dùng để phân loại công việc.
+Priority	Mức độ ưu tiên: Low, Medium, High.
+Deadline	Thời hạn hoàn thành công việc.
+Reminder	Thời điểm hệ thống nhắc người dùng về công việc.
+Status	Trạng thái: To Do, In Progress, Completed.
+Dashboard	Trang tổng quan hiển thị công việc và số liệu.
+RBAC	Phân quyền dựa trên vai trò.
+
+1.5 Tài liệu tham khảo
+•	IEEE 830 – Software Requirements Specification
+•	ISO/IEC/IEEE 29148 – Requirements Engineering
+•	UML 2.5
+•	RESTful API Design
+•	Agile Scrum Guide
+Chương 2. Tổng quan hệ thống
+2.1 Mô hình hoạt động
+Guest
+  ↓
+Register / Login / Forgot Password
+  ↓
+User
+  ↓
+Category → Task → Priority / Deadline / Reminder
+  ↓
+Update Status → Completed
+  ↓
+Dashboard → Statistics → Notification
+
+Administrator
+  ↓
+Manage Users / View Activity Logs / Backup / Restore
+2.2 Quy trình nghiệp vụ
+1.	Người dùng đăng ký tài khoản hoặc đăng nhập.
+2.	Người dùng tạo Category nếu cần phân loại công việc.
+3.	Người dùng tạo Task với tiêu đề, mô tả, Category tùy chọn, Priority và Deadline.
+4.	Người dùng có thể thiết lập Reminder cho Task.
+5.	Người dùng cập nhật trạng thái trong quá trình thực hiện.
+6.	Hệ thống gửi Notification khi công việc gần hạn, quá hạn hoặc có thay đổi quan trọng.
+7.	Người dùng hoàn thành Task và hệ thống cập nhật số liệu thống kê.
+8.	Administrator thực hiện quản trị User, xem Activity Log và vận hành Backup/Restore.
+2.3 Kiến trúc tổng quan
+Web Browser
+    ↓
+Frontend (ReactJS/VueJS hoặc Thymeleaf + Bootstrap)
+    ↓
+Spring Boot MVC / REST API
+    ↓
+Service Layer
+    ↓
+Spring Data JPA
+    ↓
+MySQL
+Lưu ý: kiến trúc triển khai có thể chọn ReactJS/VueJS cho frontend hoặc Thymeleaf + Bootstrap; backend thống nhất sử dụng Spring Boot và Spring Data JPA.
+2.4 Các Actor
+Guest, User và Administrator. Administrator là một User có role = ADMINISTRATOR trong bảng Users và được kiểm soát bằng cơ chế phân quyền.
+Chương 3. Functional Requirements
+FR-01 – Đăng ký tài khoản
+Thuộc tính	Nội dung
+Requirement ID	FR-01
+Requirement Name	Đăng ký tài khoản
+Description	Cho phép Guest tạo tài khoản bằng họ tên, email và mật khẩu; hệ thống kiểm tra dữ liệu và email duy nhất trước khi lưu.
+Actor	Guest
+Preconditions	Chưa có tài khoản và chưa đăng nhập.
+Postconditions	Tài khoản được tạo thành công.
+Priority	High
+
+FR-02 – Đăng nhập
+Thuộc tính	Nội dung
+Requirement ID	FR-02
+Requirement Name	Đăng nhập
+Description	Cho phép người dùng đăng nhập bằng email và mật khẩu; xác thực thành công thì cấp quyền truy cập theo role.
+Actor	User
+Preconditions	Có tài khoản hợp lệ và chưa đăng nhập.
+Postconditions	Phiên/token đăng nhập được tạo.
+Priority	High
+
+FR-03 – Đăng xuất
+Thuộc tính	Nội dung
+Requirement ID	FR-03
+Requirement Name	Đăng xuất
+Description	Cho phép User kết thúc phiên đăng nhập hiện tại.
+Actor	User
+Preconditions	Đang đăng nhập.
+Postconditions	Phiên đăng nhập kết thúc.
+Priority	High
+
+FR-04 – Quên mật khẩu
+Thuộc tính	Nội dung
+Requirement ID	FR-04
+Requirement Name	Quên mật khẩu
+Description	Cho phép Guest yêu cầu liên kết đặt lại mật khẩu qua email đã đăng ký.
+Actor	Guest
+Preconditions	Email tồn tại.
+Postconditions	Liên kết đặt lại mật khẩu được gửi.
+Priority	High
+
+FR-05 – Đổi mật khẩu
+Thuộc tính	Nội dung
+Requirement ID	FR-05
+Requirement Name	Đổi mật khẩu
+Description	Cho phép User thay đổi mật khẩu sau khi xác thực mật khẩu hiện tại.
+Actor	User
+Preconditions	Đã đăng nhập.
+Postconditions	Mật khẩu mới được cập nhật.
+Priority	High
+
+FR-06 – Cập nhật hồ sơ
+Thuộc tính	Nội dung
+Requirement ID	FR-06
+Requirement Name	Cập nhật hồ sơ
+Description	Cho phép User cập nhật họ tên, avatar và số điện thoại.
+Actor	User
+Preconditions	Đã đăng nhập.
+Postconditions	Thông tin hồ sơ được cập nhật.
+Priority	Medium
+
+FR-07 – Xóa tài khoản
+Thuộc tính	Nội dung
+Requirement ID	FR-07
+Requirement Name	Xóa tài khoản
+Description	Cho phép User xóa tài khoản của chính mình. Khi xóa, dữ liệu phụ thuộc được xử lý theo chính sách FK ON DELETE CASCADE.
+Actor	User
+Preconditions	Đã đăng nhập; tài khoản tồn tại.
+Postconditions	Tài khoản và dữ liệu phụ thuộc được xóa theo chính sách hệ thống.
+Priority	Medium
+
+FR-08 – Quản lý danh mục
+Thuộc tính	Nội dung
+Requirement ID	FR-08
+Requirement Name	Quản lý danh mục
+Description	Cho phép User tạo, xem, sửa và xóa Category.
+Actor	User
+Preconditions	Đã đăng nhập.
+Postconditions	Category được cập nhật.
+Priority	Medium
+
+FR-09 – Thêm công việc
+Thuộc tính	Nội dung
+Requirement ID	FR-09
+Requirement Name	Thêm công việc
+Description	Cho phép User tạo Task với tiêu đề, mô tả, Category tùy chọn, Priority, Deadline và Reminder tùy chọn.
+Actor	User
+Preconditions	Đã đăng nhập.
+Postconditions	Task được lưu.
+Priority	High
+
+FR-10 – Chỉnh sửa công việc
+Thuộc tính	Nội dung
+Requirement ID	FR-10
+Requirement Name	Chỉnh sửa công việc
+Description	Cho phép User chỉnh sửa thông tin Task thuộc quyền sở hữu.
+Actor	User
+Preconditions	Đã đăng nhập và là chủ sở hữu Task.
+Postconditions	Task được cập nhật.
+Priority	High
+
+FR-11 – Xóa công việc
+Thuộc tính	Nội dung
+Requirement ID	FR-11
+Requirement Name	Xóa công việc
+Description	Cho phép User xóa Task thuộc quyền sở hữu.
+Actor	User
+Preconditions	Đã đăng nhập và là chủ sở hữu Task.
+Postconditions	Task bị xóa.
+Priority	High
+
+FR-12 – Xem danh sách công việc
+Thuộc tính	Nội dung
+Requirement ID	FR-12
+Requirement Name	Xem danh sách công việc
+Description	Hiển thị danh sách Task của User.
+Actor	User
+Preconditions	Đã đăng nhập.
+Postconditions	Danh sách Task được hiển thị.
+Priority	High
+
+FR-13 – Xem chi tiết công việc
+Thuộc tính	Nội dung
+Requirement ID	FR-13
+Requirement Name	Xem chi tiết công việc
+Description	Hiển thị đầy đủ thông tin của một Task.
+Actor	User
+Preconditions	Đã đăng nhập và có quyền xem Task.
+Postconditions	Chi tiết Task được hiển thị.
+Priority	Medium
+
+FR-14 – Đánh dấu hoàn thành
+Thuộc tính	Nội dung
+Requirement ID	FR-14
+Requirement Name	Đánh dấu hoàn thành
+Description	Cho phép User chuyển Task sang Completed.
+Actor	User
+Preconditions	Task tồn tại và thuộc User.
+Postconditions	Task có status Completed.
+Priority	Medium
+
+FR-15 – Cập nhật trạng thái
+Thuộc tính	Nội dung
+Requirement ID	FR-15
+Requirement Name	Cập nhật trạng thái
+Description	Cho phép thay đổi status giữa To Do, In Progress và Completed theo quy tắc nghiệp vụ.
+Actor	User
+Preconditions	Đã đăng nhập và có quyền với Task.
+Postconditions	Status được cập nhật.
+Priority	High
+
+FR-16 – Thiết lập mức ưu tiên
+Thuộc tính	Nội dung
+Requirement ID	FR-16
+Requirement Name	Thiết lập mức ưu tiên
+Description	Cho phép đặt Priority Low, Medium hoặc High khi tạo/sửa Task.
+Actor	User
+Preconditions	Đã đăng nhập và có quyền với Task.
+Postconditions	Priority được lưu.
+Priority	Medium
+
+FR-17 – Thiết lập Deadline
+Thuộc tính	Nội dung
+Requirement ID	FR-17
+Requirement Name	Thiết lập Deadline
+Description	Cho phép đặt Deadline hợp lệ cho Task.
+Actor	User
+Preconditions	Đã đăng nhập và có quyền với Task.
+Postconditions	Deadline được lưu.
+Priority	High
+
+FR-18 – Thiết lập Reminder
+Thuộc tính	Nội dung
+Requirement ID	FR-18
+Requirement Name	Thiết lập Reminder
+Description	Cho phép User đặt hoặc thay đổi thời điểm nhắc cho Task.
+Actor	User
+Preconditions	Đã đăng nhập và có quyền với Task.
+Postconditions	Reminder được lưu hoặc cập nhật.
+Priority	Medium
+
+FR-19 – Tìm kiếm công việc
+Thuộc tính	Nội dung
+Requirement ID	FR-19
+Requirement Name	Tìm kiếm công việc
+Description	Cho phép tìm Task theo từ khóa, tiêu đề hoặc nội dung.
+Actor	User
+Preconditions	Đã đăng nhập.
+Postconditions	Kết quả tìm kiếm được hiển thị.
+Priority	Medium
+
+FR-20 – Lọc công việc
+Thuộc tính	Nội dung
+Requirement ID	FR-20
+Requirement Name	Lọc công việc
+Description	Cho phép lọc theo status, priority, category hoặc deadline.
+Actor	User
+Preconditions	Đã đăng nhập.
+Postconditions	Danh sách được lọc.
+Priority	Medium
+
+FR-21 – Sắp xếp công việc
+Thuộc tính	Nội dung
+Requirement ID	FR-21
+Requirement Name	Sắp xếp công việc
+Description	Cho phép sắp xếp theo ngày tạo, deadline, priority hoặc status.
+Actor	User
+Preconditions	Đã đăng nhập.
+Postconditions	Danh sách được sắp xếp.
+Priority	Medium
+
+FR-22 – Thống kê số lượng công việc
+Thuộc tính	Nội dung
+Requirement ID	FR-22
+Requirement Name	Thống kê số lượng công việc
+Description	Tổng hợp tổng số Task và số Task theo status.
+Actor	User
+Preconditions	Đã đăng nhập.
+Postconditions	Số liệu được hiển thị trên Dashboard/Statistics.
+Priority	Medium
+
+FR-23 – Thống kê tiến độ
+Thuộc tính	Nội dung
+Requirement ID	FR-23
+Requirement Name	Thống kê tiến độ
+Description	Tính tỷ lệ hoàn thành theo ngày, tuần, tháng và hiển thị trực quan.
+Actor	User
+Preconditions	Đã đăng nhập.
+Postconditions	Biểu đồ tiến độ được hiển thị.
+Priority	Medium
+
+FR-24 – Nhận thông báo
+Thuộc tính	Nội dung
+Requirement ID	FR-24
+Requirement Name	Nhận thông báo
+Description	Gửi và hiển thị thông báo khi Task gần hạn, quá hạn hoặc có thay đổi quan trọng.
+Actor	User
+Preconditions	Đã đăng nhập và bật notification.
+Postconditions	Notification được tạo/hiển thị.
+Priority	High
+
+FR-25 – Quản lý người dùng
+Thuộc tính	Nội dung
+Requirement ID	FR-25
+Requirement Name	Quản lý người dùng
+Description	Administrator xem, chỉnh sửa, khóa/mở khóa tài khoản theo quyền.
+Actor	Administrator
+Preconditions	Đã đăng nhập và có quyền ADMINISTRATOR.
+Postconditions	Thông tin/trạng thái User được cập nhật.
+Priority	High
+
+FR-26 – Xem Activity Log
+Thuộc tính	Nội dung
+Requirement ID	FR-26
+Requirement Name	Xem Activity Log
+Description	Administrator xem lịch sử thao tác quan trọng của người dùng.
+Actor	Administrator
+Preconditions	Đã đăng nhập và có quyền quản trị.
+Postconditions	Activity Log được hiển thị.
+Priority	Medium
+
+FR-27 – Sao lưu dữ liệu
+Thuộc tính	Nội dung
+Requirement ID	FR-27
+Requirement Name	Sao lưu dữ liệu
+Description	Administrator tạo bản sao lưu toàn bộ database theo lịch hoặc theo yêu cầu.
+Actor	Administrator
+Preconditions	Đã đăng nhập và có quyền quản trị.
+Postconditions	Backup được tạo và lưu trữ.
+Priority	Medium
+
+FR-28 – Khôi phục dữ liệu
+Thuộc tính	Nội dung
+Requirement ID	FR-28
+Requirement Name	Khôi phục dữ liệu
+Description	Administrator khôi phục database từ một bản backup hợp lệ.
+Actor	Administrator
+Preconditions	Đã đăng nhập; tồn tại backup hợp lệ.
+Postconditions	Dữ liệu được khôi phục.
+Priority	High
+
+Chương 4. Non Functional Requirements
+4.1 Performance
+•	Thời gian phản hồi thông thường < 2 giây.
+•	Hỗ trợ tối thiểu 500 người dùng đồng thời.
+•	Dashboard tải dữ liệu trong < 3 giây trong điều kiện tải chuẩn.
+4.2 Security
+•	JWT Authentication.
+•	BCrypt Password Hashing.
+•	HTTPS.
+•	Prepared Statement/ORM để phòng SQL Injection.
+•	Output Encoding để phòng XSS.
+•	CSRF Protection khi dùng cookie/session phù hợp.
+•	Role-based Authorization (USER/ADMINISTRATOR).
+4.3 Availability
+•	Mục tiêu uptime ≥ 99.9%.
+•	Backup dữ liệu hằng ngày.
+•	Có quy trình phục hồi sau sự cố.
+4.4 Reliability
+•	Đảm bảo tính nhất quán giao dịch.
+•	Không làm mất dữ liệu khi lỗi thông thường.
+•	Ghi log lỗi và thao tác quan trọng.
+4.5 Maintainability
+•	Kiến trúc phân lớp/MVC hoặc Clean Architecture.
+•	Mã nguồn tuân thủ coding convention.
+•	Unit Test Coverage mục tiêu ≥ 80%.
+4.6 Portability
+•	Chạy trên Windows/Linux.
+•	Hỗ trợ Docker.
+•	Có thể triển khai môi trường Cloud.
+Chương 5. Business Rules
+ID	Business Rule	Layer
+BR-01	Mỗi User có một user_id duy nhất.	Database – PK.
+BR-02	Một User có thể tạo nhiều Task.	Database – FK.
+BR-03	Một Task chỉ thuộc một User.	Database – tasks.user_id NOT NULL.
+BR-04	Một Task có thể thuộc một Category hoặc chưa được phân loại.	Database – tasks.category_id NULL.
+BR-05	Deadline không được nhỏ hơn thời điểm tạo Task.	Backend validation.
+BR-06	Chỉ chủ sở hữu mới được chỉnh sửa Task.	Authorization.
+BR-07	Chỉ chủ sở hữu mới được xóa Task.	Authorization.
+BR-08	Email phải là duy nhất.	Database – UNIQUE.
+BR-09	Mật khẩu tối thiểu 8 ký tự.	Backend validation.
+BR-10	Reminder phải hợp lệ và không vượt quá Deadline nếu Deadline được thiết lập.	Backend validation.
+BR-11	Status chỉ gồm To Do, In Progress, Completed.	Database ENUM.
+BR-12	Priority chỉ gồm Low, Medium, High.	Database ENUM.
+BR-13	User chỉ được xem dữ liệu của chính mình, ngoại trừ Administrator theo quyền.	Authorization.
+BR-14	Xóa User sẽ xóa dữ liệu phụ thuộc theo chính sách ON DELETE CASCADE.	Database FK.
+
+Chương 6. Use Case List
+ID	Use Case	Actor
+UC01	Register	Guest
+UC02	Login	Guest
+UC03	Logout	User
+UC04	Forgot Password	Guest
+UC05	Change Password	User
+UC06	Update Profile	User
+UC07	Create Category	User
+UC08	Update Category	User
+UC09	Delete Category	User
+UC10	Create Task	User
+UC11	Update Task	User
+UC12	Delete Task	User
+UC13	View Task	User
+UC14	Search Task	User
+UC15	Filter / Sort Task	User
+UC16	Set Reminder	User
+UC17	Mark Task Completed	User
+UC18	View Dashboard	User
+UC19	View Statistics	User
+UC20	Manage Users	Administrator
+UC21	View Activity Logs	Administrator
+UC22	Backup Database	Administrator
+UC23	Restore Database	Administrator
+UC24	Delete Account	User
+
+Chương 7. Data Dictionary và Database
+Cơ sở dữ liệu gồm 6 bảng chính: Users, Categories, Tasks, Notifications, ActivityLogs và Settings. Chi tiết PK/FK, cardinality và SQL được quản lý trong tài liệu Database Design tương ứng.
+Bảng	PK	FK chính	Cardinality
+Users	user_id	—	—
+Categories	category_id	user_id → Users	Users 1:N Categories
+Tasks	task_id	user_id → Users; category_id → Categories	Users 1:N Tasks; Categories 1:N Tasks
+Notifications	notification_id	user_id → Users	Users 1:N Notifications
+ActivityLogs	log_id	user_id → Users	Users 1:N ActivityLogs
+Settings	setting_id	user_id → Users (UNIQUE)	Users 1:1 Settings
+
+Đặc biệt, Tasks.category_id cho phép NULL; Users.role gồm USER và ADMINISTRATOR; các FK user_id sử dụng ON DELETE CASCADE để hỗ trợ UC24 – Delete Account.
+Chương 8. Risk Analysis
+Risk	Mức độ	Giải pháp
+Mất dữ liệu	Cao	Backup định kỳ, kiểm tra Restore.
+SQL Injection	Cao	ORM + Prepared Statement.
+XSS	Cao	Encode/validate output.
+CSRF	Trung bình	CSRF Token/cấu hình bảo mật phù hợp.
+Truy cập trái phép	Cao	JWT + RBAC + authorization theo owner.
+Quá tải	Trung bình	Index, caching và tối ưu query.
+Trễ tiến độ	Trung bình	Quản lý Sprint và ưu tiên backlog.
+Lỗi notification	Thấp	Retry + Logging.
+Thay đổi yêu cầu	Trung bình	Change Request và quản lý version.
+Lỗi triển khai	Trung bình	CI/CD + kiểm thử.
+
+Chương 9. Kế hoạch phát triển
+Sprint 1 – 2 tuần
+•	Khảo sát yêu cầu
+•	Thiết kế CSDL
+•	Thiết kế UI
+•	Register/Login
+•	Update Profile
+•	Authentication & Authorization cơ bản
+Sprint 2 – 2 tuần
+•	CRUD Category
+•	CRUD Task
+•	Priority
+•	Deadline
+•	Status
+•	Kiểm thử chức năng Task
+Sprint 3 – 2 tuần
+•	Reminder
+•	Notification
+•	Search
+•	Filter/Sort
+•	Dashboard
+•	Statistics
+Sprint 4 – 2 tuần
+•	Manage Users
+•	Activity Logs
+•	Backup
+•	Restore
+•	Delete Account
+•	Kiểm thử tích hợp
+•	Tối ưu hiệu năng
+•	Triển khai
+Phụ lục A. Ma trận truy vết FR → Use Case
+Functional Requirement	Use Case thực hiện
+FR-01	UC01
+FR-02	UC02
+FR-03	UC03
+FR-04	UC04
+FR-05	UC05
+FR-06	UC06
+FR-07	UC24
+FR-08	UC07, UC08, UC09
+FR-09	UC10
+FR-10	UC11
+FR-11	UC12
+FR-12	UC13
+FR-13	UC13
+FR-14	UC17
+FR-15	UC11, UC17
+FR-16	UC10, UC11
+FR-17	UC10, UC11
+FR-18	UC10, UC11, UC16
+FR-19	UC14
+FR-20	UC15
+FR-21	UC15
+FR-22	UC18, UC19
+FR-23	UC18, UC19
+FR-24	UC16
+FR-25	UC20
+FR-26	UC21
+FR-27	UC22
+FR-28	UC23
+
+Phụ lục B. Kiểm tra tính nhất quán
+Hạng mục	Trạng thái	Ghi chú
+FR-01 → FR-28	Đạt	28/28 FR đều có Use Case.
+UC01 → UC24	Đạt	24 Use Case, trong đó UC20–UC23 tách chức năng Admin; UC24 xử lý FR-07.
+Users.role	Đạt	Có USER/ADMINISTRATOR để hỗ trợ Actor và RBAC.
+Tasks.category_id	Đạt	Cho phép NULL, phù hợp BR-04.
+Delete Account	Đạt	UC24 → Users; FK ON DELETE CASCADE xử lý dữ liệu phụ thuộc.
+Backup/Restore	Đạt	Là thao tác toàn database, không tạo bảng Backup/Restore.
+Business Rules	Đạt	Rule dữ liệu ở DB; validation/authorization ở Backend.
+
